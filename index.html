@@ -344,7 +344,7 @@
                 
                 <!-- Cloud Sync -->
                 <div class="setting-block">
-                    <h3>☁️ Cloud Sync (Firebase)</h3>
+                    <h3>☁️ Cloud Sync (Firebase) <span id="sync-status-display" style="font-size:0.9rem; float:right; opacity:0.7"></span></h3>
                     <input type="text" class="std-input" id="set-sync-id" placeholder="Sync ID (e.g. my_secret_123)">
                     <textarea class="config-area" id="set-firebase-cfg" placeholder="Paste Firebase Config Object here..."></textarea>
                     <button class="full-btn" onclick="saveSettings()">Connect & Save</button>
@@ -435,11 +435,12 @@
         
         function persist() {
             localStorage.setItem('cal_data_v5', JSON.stringify(data));
-            if(db && syncId) setDoc(doc(db, 'calendars', syncId), { d: JSON.stringify(data), t: Date.now() }).catch(e=>status(false));
+            if(db && syncId) setDoc(doc(db, 'calendars', syncId), { d: JSON.stringify(data), t: Date.now() }).catch(e=>status(false, 'Upload Failed'));
         }
 
         // --- Cloud ---
         function connectCloud(raw) {
+            status(false, 'Connecting...');
             try {
                 let clean = raw.replace(/const\s+\w+\s*=\s*/, '').replace(/;$/, '');
                 const obj = new Function('return ' + clean)();
@@ -453,15 +454,24 @@
                         localStorage.setItem('cal_data_v5', JSON.stringify(data));
                         renderCal(); renderWidgets();
                         if(selKey) renderDayModal(selKey);
-                        status(true);
+                        status(true, 'Synced');
                     } else {
                         persist(); // Init cloud
-                        status(true);
+                        status(true, 'Initialized');
                     }
-                }, err => { console.error(err); status(false); });
-            } catch(e) { console.error(e); status(false); }
+                }, err => { console.error(err); status(false, 'Error'); });
+            } catch(e) { console.error(e); status(false, 'Config Error'); }
         }
-        function status(online) { $('sync-dot').className = `sync-dot ${online?'online':''}`; }
+        
+        function status(online, msg) {
+            const dot = $('sync-dot');
+            const txt = $('sync-status-display');
+            if(dot) dot.className = `sync-dot ${online?'online':''}`;
+            if(txt) {
+                txt.innerText = msg || (online ? 'Online' : 'Offline');
+                txt.style.color = online ? 'var(--success)' : 'var(--danger)';
+            }
+        }
 
         // --- Calendar ---
         window.renderCal = () => {
@@ -649,7 +659,7 @@
             const id = $('set-sync-id').value.trim();
             const raw = $('set-firebase-cfg').value.trim();
             if(id && raw) { localStorage.setItem('cal_sync_id', id); localStorage.setItem('cal_fb_raw', raw); window.syncId=id; connectCloud(raw); }
-            closeModal('modal-settings');
+            // closeModal('modal-settings'); // Changed: Do NOT close automatically
         };
 
         window.setTheme = t => { config.theme = t; applyTheme(); localStorage.setItem('cal_conf_v5', JSON.stringify(config)); };
