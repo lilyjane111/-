@@ -7,8 +7,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>My Time</title>
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=3">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=3">
+
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
@@ -136,15 +137,17 @@
         }
         .overview-item:hover { color: var(--accent); }
         .tag-date { font-size: 0.75rem; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; color: var(--text-sub); }
+        .tag-date.overdue { color: var(--danger); font-weight:bold; }
         .empty-state { text-align: center; color: var(--text-sub); font-style: italic; opacity: 0.5; margin-top: 20px; font-size: 0.9rem; }
 
         /* --- Footer Quote --- */
+        .footer-quote-container { padding: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 15px; }
         .footer-quote {
-            text-align: center; padding: 15px; flex-shrink: 0;
-            font-family: var(--font-serif); font-style: italic; font-size: 0.9rem;
-            color: var(--text-primary); opacity: 0.7; cursor: pointer;
-            text-shadow: 0 1px 10px rgba(255,255,255,0.5);
+            text-align: center; font-family: var(--font-serif); font-style: italic; font-size: 0.9rem;
+            color: var(--text-primary); opacity: 0.8; text-shadow: 0 1px 10px rgba(255,255,255,0.5); flex: 1; max-width: 600px;
         }
+        .quote-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-sub); cursor: pointer; opacity: 0.5; padding: 5px 10px; }
+        .quote-btn:hover { opacity: 1; color: var(--accent); }
 
         /* --- Modals --- */
         .modal-overlay {
@@ -272,7 +275,11 @@
         </div>
     </div>
 
-    <div class="footer-quote" id="quote-area" onclick="rotateQuote()"></div>
+    <div class="footer-quote-container">
+        <button class="quote-btn" onclick="changeQuote(-1)">‹</button>
+        <div class="footer-quote" id="quote-area"></div>
+        <button class="quote-btn" onclick="changeQuote(1)">›</button>
+    </div>
 
     <div class="modal-overlay" id="modal-day">
         <div class="modal-card" onclick="event.stopPropagation()"> <div class="modal-header">
@@ -295,7 +302,7 @@
                     <div class="section-header">Schedule</div>
                     <div class="input-row">
                         <input type="time" class="std-input" id="in-sche-time" style="flex:0.4">
-                        <input type="text" class="std-input" id="in-sche-text" placeholder="Event details...">
+                        <input type="text" class="std-input" id="in-sche-text" placeholder="Event details..." onkeypress="e => e.key==='Enter' && addSche()">
                         <button class="action-btn" onclick="addSche()">+</button>
                     </div>
                     <div id="list-sche"></div>
@@ -304,7 +311,7 @@
                 <div>
                     <div class="section-header">To-Do List</div>
                     <div class="input-row">
-                        <input type="text" class="std-input" id="in-todo" placeholder="Add a task...">
+                        <input type="text" class="std-input" id="in-todo" placeholder="Add a task..." onkeypress="e => e.key==='Enter' && addTodo()">
                         <button class="action-btn" onclick="addTodo()">+</button>
                     </div>
                     <div id="list-todo"></div>
@@ -385,6 +392,7 @@
         let curDate = new Date();
         let selKey = null;
         let cdIdx = 0;
+        let quoteIdx = 0; // New state for quote navigation
         let unsubscribe = null;
 
         // Quotes
@@ -394,23 +402,29 @@
             "The paradox of love is that two beings become one and yet remain two.",
             "Man's main task in life is to give birth to himself.",
             "To spare oneself from grief at all cost can be achieved only at the price of total detachment.",
-            "The ability to be puzzled is the premise of all creation."
+            "The ability to be puzzled is the premise of all creation.",
+            "Not he who has much is rich, but he who gives much."
         ];
 
         // --- Init ---
         async function init() {
             applyTheme();
             updateClock(); setInterval(updateClock, 1000);
-            rotateQuote(); setInterval(rotateQuote, 60000);
+            renderQuote(); // Changed from rotateQuote
             renderCal(); renderWidgets();
             
             // Try Sync
             const fbRaw = localStorage.getItem('cal_fb_raw');
             if(fbRaw && syncId) connectCloud(fbRaw);
 
-            // Click Outside listeners
+            // Listeners
             document.getElementById('modal-day').addEventListener('click', e => { if(e.target.id === 'modal-day') closeModal('modal-day'); });
             document.getElementById('modal-settings').addEventListener('click', e => { if(e.target.id === 'modal-settings') closeModal('modal-settings'); });
+            
+            // Enter key listeners (Improved 1)
+            $('in-todo').onkeypress = e => e.key==='Enter' && addTodo();
+            $('in-sche-text').onkeypress = e => e.key==='Enter' && addSche();
+            $('in-thought').onkeypress = e => e.key==='Enter' && !e.shiftKey && (e.preventDefault(), addThought());
         }
 
         // --- Helper ---
@@ -541,7 +555,7 @@
                     </div>
                 </div>`).join('');
 
-            // Thoughts
+            // Thoughts (Improved 2: Full Date display)
             $('list-thought').innerHTML = d.thoughts.map((t, i) => `
                 <div class="list-item thought-card">
                     <div class="thought-header">
@@ -560,7 +574,20 @@
         
         window.addSche = () => { const t=$('in-sche-time').value, x=$('in-sche-text').value.trim(); if(x){ const d=getDayData(selKey); d.schedules.push({time:t,text:x}); saveDayData(selKey,d); $('in-sche-text').value=''; } };
         window.addTodo = () => { const x=$('in-todo').value.trim(); if(x){ const d=getDayData(selKey); d.todos.push(x); saveDayData(selKey,d); $('in-todo').value=''; } };
-        window.addThought = () => { const x=$('in-thought').value.trim(); if(x){ const d=getDayData(selKey); d.thoughts.push({id:Date.now(), text:x, time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}); saveDayData(selKey,d); $('in-thought').value=''; } };
+        
+        // Improved 2: Store full date string for thoughts
+        window.addThought = () => { 
+            const x=$('in-thought').value.trim(); 
+            if(x){ 
+                const d=getDayData(selKey); 
+                // Format: YYYY/MM/DD HH:mm
+                const now = new Date();
+                const timeStr = now.toLocaleString('zh-CN', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false});
+                d.thoughts.push({id:Date.now(), text:x, time:timeStr}); 
+                saveDayData(selKey,d); 
+                $('in-thought').value=''; 
+            } 
+        };
 
         window.delItem = (type, id) => {
             if(!confirm("Delete?")) return;
@@ -606,26 +633,36 @@
                 elSub.innerText = `${cd.date} (${cdIdx+1}/${cds.length})`;
             }
 
-            // Overview Lists
+            // Overview Lists (Improved 4: Pending shows ALL overdue tasks)
             let tasks=[], sches=[];
             const today = new Date(); today.setHours(0,0,0,0);
+            
             Object.keys(data).forEach(k => {
                 const [y,m,d] = k.split('-').map(Number);
                 const dt = new Date(y,m-1,d);
-                if(dt >= today) {
-                    const dd = data[k];
-                    const ds = dt.toLocaleDateString('en-US', {month:'short', day:'numeric'});
-                    if(dd.todos) dd.todos.forEach(t => tasks.push({t, k, dt, ds}));
-                    if(dd.schedules) dd.schedules.forEach(s => sches.push({s, k, dt, ds}));
-                }
+                const dd = data[k];
+                const ds = dt.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+                
+                // Tasks: Collect ALL pending tasks (past and future)
+                if(dd.todos) dd.todos.forEach(t => tasks.push({t, k, dt, ds, isOverdue: dt < today}));
+                
+                // Schedules: Only collect future schedules
+                if(dt >= today && dd.schedules) dd.schedules.forEach(s => sches.push({s, k, dt, ds}));
             });
-            tasks.sort((a,b)=>a.dt-b.dt); sches.sort((a,b)=>a.dt-b.dt);
+            
+            tasks.sort((a,b)=>a.dt-b.dt); // Sort by date
+            sches.sort((a,b)=>a.dt-b.dt);
 
             const render = (c, arr, type) => {
-                $(c).innerHTML = arr.slice(0,10).map(i => { // Limit to 10 items
-                    const txt = type==='task' ? i.t : `<span style="font-family:monospace;color:var(--accent)">${i.s.time||'--:--'}</span> ${i.s.text}`;
-                    return `<div class="overview-item" onclick="openDay('${i.k}', new Date('${i.dt}'))"><div style="flex:1">${txt}</div><div class="tag-date">${i.ds}</div></div>`;
-                }).join('') || '<div class="empty-state">Nothing upcoming</div>';
+                $(c).innerHTML = arr.slice(0,10).map(i => { // Limit to 10
+                    let txt = i.t;
+                    let dateClass = i.isOverdue ? 'tag-date overdue' : 'tag-date'; // Highlight overdue
+                    if(type==='sche') {
+                         txt = `<span style="font-family:monospace;color:var(--accent)">${i.s.time||'--:--'}</span> ${i.s.text}`;
+                         dateClass = 'tag-date';
+                    }
+                    return `<div class="overview-item" onclick="openDay('${i.k}', new Date('${i.dt}'))"><div style="flex:1">${txt}</div><div class="${dateClass}">${i.ds}</div></div>`;
+                }).join('') || '<div class="empty-state">Nothing pending</div>';
             };
             render('overview-tasks', tasks, 'task');
             render('overview-schedule', sches, 'sche');
@@ -644,7 +681,6 @@
             const id = $('set-sync-id').value.trim();
             const raw = $('set-firebase-cfg').value.trim();
             if(id && raw) { localStorage.setItem('cal_sync_id', id); localStorage.setItem('cal_fb_raw', raw); window.syncId=id; connectCloud(raw); }
-            // closeModal('modal-settings'); // Changed: Do NOT close automatically
         };
 
         window.setTheme = t => { config.theme = t; applyTheme(); localStorage.setItem('cal_conf_v5', JSON.stringify(config)); };
@@ -660,7 +696,6 @@
         };
         window.clearBg = () => { config.bg=''; applyTheme(); localStorage.setItem('cal_conf_v5', JSON.stringify(config)); };
 
-        // CD Settings
         window.renderCdList = () => {
             $('set-cd-list').innerHTML = (config.countdowns||[]).map((c,i) => `<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');
         };
@@ -670,14 +705,19 @@
         };
         window.delCd = i => { config.countdowns.splice(i,1); localStorage.setItem('cal_conf_v5', JSON.stringify(config)); renderCdList(); renderWidgets(); };
 
-        // Clock & Quote
+        // Clock & Quote (Improved 3: Manual Navigation)
         function updateClock() {
             const n = new Date();
             $('clock-time').innerText = n.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
             $('clock-sec').innerText = String(n.getSeconds()).padStart(2,'0');
             $('clock-date').innerText = n.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
         }
-        window.rotateQuote = () => { $('quote-area').innerHTML = `"${quotes[Math.floor(Date.now()/60000)%quotes.length]}" <span>— Erich Fromm</span>`; };
+        window.renderQuote = () => { 
+            if(quoteIdx < 0) quoteIdx = quotes.length - 1;
+            if(quoteIdx >= quotes.length) quoteIdx = 0;
+            $('quote-area').innerHTML = `"${quotes[quoteIdx]}" <span>— Erich Fromm</span>`; 
+        };
+        window.changeQuote = (dir) => { quoteIdx += dir; renderQuote(); };
 
         init();
     </script>
