@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>My Time</title>
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=6">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=6">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=7">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=7">
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -161,6 +161,11 @@
         .config-area { width: 100%; height: 80px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); border-radius: 10px; padding: 8px; font-family: monospace; font-size: 0.8rem; resize: none; margin-top: 8px;}
         .full-btn { width: 100%; padding: 10px; background: var(--text-primary); color: var(--bg-color); border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 8px; font-size: 0.9rem;}
         ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+
+        /* NEW: In-Place Edit Styles */
+        .edit-input { flex: 1; border: 1px solid var(--accent); background: rgba(255,255,255,0.8); padding: 6px 10px; border-radius: 8px; font-family: inherit; font-size: 0.9rem; color: var(--text-main); margin-right: 8px; }
+        .edit-actions { display: flex; gap: 4px; }
+        .btn-save { color: var(--success); } .btn-cancel { color: var(--danger); }
     </style>
 </head>
 <body class="theme-white">
@@ -228,8 +233,8 @@
             <div class="modal-header"><div><div class="modal-date" id="modal-day-num"></div><div class="modal-sub" id="modal-day-meta"></div></div></div>
             <div class="mood-grid"><div class="mood-emoji" data-m="happy" onclick="setMood('happy')">😄</div><div class="mood-emoji" data-m="calm" onclick="setMood('calm')">😌</div><div class="mood-emoji" data-m="normal" onclick="setMood('normal')">😐</div><div class="mood-emoji" data-m="tired" onclick="setMood('tired')">😫</div><div class="mood-emoji" data-m="sad" onclick="setMood('sad')">😢</div></div>
             <div class="modal-body">
-                <div><div class="section-header">Schedule</div><div class="input-row"><input type="time" class="std-input" id="in-sche-time" style="flex:0.4"><input type="text" class="std-input" id="in-sche-text" placeholder="Event details..." onkeypress="e => e.key==='Enter' && addSche()"><button class="action-btn" onclick="addSche()">+</button></div><div id="list-sche"></div></div>
-                <div><div class="section-header">To-Do List</div><div class="input-row"><input type="text" class="std-input" id="in-todo" placeholder="Add a task..." onkeypress="e => e.key==='Enter' && addTodo()"><button class="action-btn" onclick="addTodo()">+</button></div><div id="list-todo"></div><div class="section-header" style="margin-top:20px; font-size:0.8rem; opacity:0.7">Completed</div><div id="list-done"></div></div>
+                <div><div class="section-header">Schedule</div><div class="input-row"><input type="time" class="std-input" id="in-sche-time" style="flex:0.4"><input type="text" class="std-input" id="in-sche-text" placeholder="Event details..."><button class="action-btn" onclick="addSche()">+</button></div><div id="list-sche"></div></div>
+                <div><div class="section-header">To-Do List</div><div class="input-row"><input type="text" class="std-input" id="in-todo" placeholder="Add a task..."><button class="action-btn" onclick="addTodo()">+</button></div><div id="list-todo"></div><div class="section-header" style="margin-top:20px; font-size:0.8rem; opacity:0.7">Completed</div><div id="list-done"></div></div>
                 <div><div class="section-header">Thoughts</div><div class="input-row"><textarea class="std-input" id="in-thought" placeholder="Write something..." style="height:60px; resize:none"></textarea><button class="action-btn" style="height:60px" onclick="addThought()">✎</button></div><div id="list-thought"></div></div>
             </div>
         </div>
@@ -240,7 +245,7 @@
             <div class="modal-body settings-container">
                 <div class="setting-block"><h3>☁️ Cloud Sync <span id="sync-status-display" style="font-size:0.8rem; float:right; opacity:0.7"></span></h3><input type="text" class="std-input" id="set-sync-id" placeholder="Sync ID"><textarea class="config-area" id="set-firebase-cfg" placeholder="Firebase Config Object"></textarea><button class="full-btn" onclick="saveSettings()">Connect & Save</button></div>
                 <div class="setting-block"><h3>🎨 Theme</h3><div class="theme-grid"><div class="theme-swatch" onclick="setTheme('white')">White</div><div class="theme-swatch" onclick="setTheme('dark')">Dark</div><div class="theme-swatch" onclick="setTheme('monet')">Monet</div><div class="theme-swatch" onclick="setTheme('sakura')">Sakura</div><div class="theme-swatch" onclick="setTheme('nordic')">Nordic</div><div class="theme-swatch" onclick="setTheme('cyber')">Cyber</div><div class="theme-swatch" onclick="setTheme('retro')">Retro</div></div></div>
-                <div class="setting-block"><h3>✨ Habits</h3><div id="set-habit-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-habit-text" placeholder="New habit..." onkeypress="e => e.key==='Enter' && addHabit()"><button class="action-btn" onclick="addHabit()">+</button></div></div>
+                <div class="setting-block"><h3>✨ Habits</h3><div id="set-habit-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-habit-text" placeholder="New habit..."><button class="action-btn" onclick="addHabit()">+</button></div></div>
                 <div class="setting-block"><h3>🎉 Countdowns</h3><div id="set-cd-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-cd-name" placeholder="Name"><input type="date" class="std-input" id="new-cd-date"><button class="action-btn" onclick="addCd()">+</button></div></div>
                 <div class="setting-block"><h3>🖼️ Background</h3><input type="file" class="std-input" accept="image/*" onchange="uploadBg(event)"><button class="full-btn" style="background:var(--danger); margin-top:5px" onclick="clearBg()">Clear BG</button></div>
             </div>
@@ -252,6 +257,7 @@
         import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         let db=null, syncId=localStorage.getItem('cal_sync_id')||'', data=JSON.parse(localStorage.getItem('cal_data_v5')||'{}'), config=JSON.parse(localStorage.getItem('cal_conf_v5')||'{"theme":"white","countdowns":[],"habits":[]}'), curDate=new Date(), selKey=null, cdIdx=0, quoteIdx=0, unsubscribe=null;
+        let editingItem = { type: null, id: null }; // New state for in-place edit
         const quotes=["Love is not a sentiment which can be easily indulged in by anyone regardless of the level of maturity reached by him.","Creativity requires the courage to let go of certainties.","The paradox of love is that two beings become one and yet remain two.","Man's main task in life is to give birth to himself.","To spare oneself from grief at all cost can be achieved only at the price of total detachment.","The ability to be puzzled is the premise of all creation.","Not he who has much is rich, but he who gives much."];
         const $=id=>document.getElementById(id); const getDayData=k=>({schedules:[],todos:[],dones:[],thoughts:[],mood:null,...data[k]}); const saveDayData=(k,d)=>{data[k]=d;persist();if(selKey===k)renderDayModal(k);renderCal();renderWidgets();};
         function persist(){localStorage.setItem('cal_data_v5',JSON.stringify(data));if(db&&syncId)setDoc(doc(db,'calendars',syncId),{d:JSON.stringify(data),t:Date.now()}).catch(e=>status(false,'Upload Failed'));}
@@ -276,7 +282,7 @@
         };
         window.moveMonth=d=>{curDate.setMonth(curDate.getMonth()+d);renderCal();}; window.goToday=()=>{curDate=new Date();renderCal();};
 
-        // --- Widgets (Fixed Tasks & Schedule) ---
+        // --- Widgets ---
         window.renderWidgets=()=>{
             const cds=config.countdowns||[], elT=$('cd-title'), elD=$('cd-days'), elSub=$('cd-date-text');
             if(!cds.length){elT.innerText='NO EVENT';elD.innerText='-';elSub.innerText='Setup in settings';}else{if(cdIdx>=cds.length)cdIdx=0;const cd=cds[cdIdx], diff=Math.ceil((new Date(cd.date)-new Date().setHours(0,0,0,0))/(86400000));elT.innerText=cd.name;elD.innerHTML=diff>0?diff:(diff===0?'NOW':Math.abs(diff));elD.innerHTML+='<span>DAYS</span>';elSub.innerText=`${cd.date} (${cdIdx+1}/${cds.length})`;}
@@ -289,19 +295,71 @@
                 if(dt>=today && dd.schedules) dd.schedules.forEach(s=>sches.push({s,k,dt,ds}));
             });
             tasks.sort((a,b)=>a.dt-b.dt); sches.sort((a,b)=>a.dt-b.dt);
-            // Removed slice(0,10) limit for V6
             $('overview-tasks').innerHTML=tasks.map(i=>`<div class="overview-item" onclick="openDay('${i.k}',new Date('${i.dt}'))"><div style="flex:1">${i.t}</div><div class="tag-date ${i.isOverdue?'overdue':''}">${i.ds}</div></div>`).join('')||'<div class="empty-state">Nothing pending</div>';
             $('overview-schedule').innerHTML=sches.map(i=>`<div class="overview-item" onclick="openDay('${i.k}',new Date('${i.dt}'))"><div style="flex:1"><span style="font-family:monospace;color:var(--accent)">${i.s.time||'--:--'}</span> ${i.s.text}</div><div class="tag-date">${i.ds}</div></div>`).join('')||'<div class="empty-state">No upcoming schedule</div>';
         };
         window.swapCd=d=>{cdIdx+=d;renderWidgets();};
 
-        // --- Other Logic (Unchanged) ---
+        // --- Logic (V6.1 In-Place Edit) ---
         window.openDay=(k,d)=>{selKey=k;$('modal-day-num').innerText=d.getDate();$('modal-day-meta').innerText=d.toLocaleDateString('en-US',{month:'short',year:'numeric',weekday:'long'});renderDayModal(k);$('modal-day').classList.add('active');};
-        function renderDayModal(k){const d=getDayData(k);document.querySelectorAll('.mood-emoji').forEach(e=>{e.className=`mood-emoji ${e.dataset.m===d.mood?'active':''}`;});const sList=d.schedules.sort((a,b)=>(a.time||'').localeCompare(b.time||''));$('list-sche').innerHTML=sList.map((s,i)=>`<div class="list-item"><div class="item-text"><span class="schedule-time">${s.time||'TBD'}</span> ${s.text}</div><div class="item-actions"><button class="btn-icon" onclick="editItem('sche',${i})">✎</button><button class="btn-icon btn-delete" onclick="delItem('sche',${i})">×</button></div></div>`).join('')||'<div class="empty-state">No schedule</div>';$('list-todo').innerHTML=d.todos.map((t,i)=>`<div class="list-item"><div class="item-text">◻ ${t}</div><div class="item-actions"><button class="btn-icon" onclick="finTask(${i})">✓</button><button class="btn-icon" onclick="editItem('todo',${i})">✎</button><button class="btn-icon btn-delete" onclick="delItem('todo',${i})">×</button></div></div>`).join('')||'<div class="empty-state">No pending tasks</div>';$('list-done').innerHTML=d.dones.map((t,i)=>`<div class="list-item done-item"><div class="item-text">◼ ${t}</div><div class="item-actions"><button class="btn-icon" onclick="undoTask(${i})">↩</button><button class="btn-icon btn-delete" onclick="delItem('done',${i})">×</button></div></div>`).join('');$('list-thought').innerHTML=d.thoughts.map((t,i)=>`<div class="list-item thought-card"><div class="thought-header"><span>${t.time}</span><div class="item-actions"><button class="btn-icon" onclick="editItem('thought',${t.id})">✎</button><button class="btn-icon btn-delete" onclick="delItem('thought',${t.id})">×</button></div></div><div class="thought-body">${t.text}</div></div>`).join('')||'<div class="empty-state">Empty mind</div>';}
-        window.setMood=m=>{const d=getDayData(selKey);d.mood=(d.mood===m)?null:m;saveDayData(selKey,d);};window.addSche=()=>{const t=$('in-sche-time').value,x=$('in-sche-text').value.trim();if(x){const d=getDayData(selKey);d.schedules.push({time:t,text:x});saveDayData(selKey,d);$('in-sche-text').value='';}};window.addTodo=()=>{const x=$('in-todo').value.trim();if(x){const d=getDayData(selKey);d.todos.push(x);saveDayData(selKey,d);$('in-todo').value='';}};window.addThought=()=>{const x=$('in-thought').value.trim();if(x){const d=getDayData(selKey);const now=new Date();const timeStr=now.toLocaleString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});d.thoughts.push({id:Date.now(),text:x,time:timeStr});saveDayData(selKey,d);$('in-thought').value='';}};window.delItem=(type,id)=>{if(!confirm("Delete?"))return;const d=getDayData(selKey);if(type==='sche')d.schedules.splice(id,1);if(type==='todo')d.todos.splice(id,1);if(type==='done')d.dones.splice(id,1);if(type==='thought')d.thoughts=d.thoughts.filter(t=>t.id!==id);saveDayData(selKey,d);};window.editItem=(type,id)=>{const d=getDayData(selKey);let val='';if(type==='sche')val=prompt("Edit Schedule:",d.schedules[id].text);if(type==='todo')val=prompt("Edit Task:",d.todos[id]);if(type==='thought'){const t=d.thoughts.find(x=>x.id===id);val=prompt("Edit Thought:",t.text);}if(val){if(type==='sche')d.schedules[id].text=val;if(type==='todo')d.todos[id]=val;if(type==='thought')d.thoughts.find(x=>x.id===id).text=val;saveDayData(selKey,d);}};window.finTask=i=>{const d=getDayData(selKey);d.dones.unshift(d.todos.splice(i,1)[0]);saveDayData(selKey,d);};window.undoTask=i=>{const d=getDayData(selKey);d.todos.push(d.dones.splice(i,1)[0]);saveDayData(selKey,d);};
-        window.openSettings=()=>{ $('modal-settings').classList.add('active'); $('set-sync-id').value=syncId; $('set-firebase-cfg').value=localStorage.getItem('cal_fb_raw')||''; renderSettingsLists();};window.closeModal=id=>{$(id).classList.remove('active');};window.saveSettings=()=>{const id=$('set-sync-id').value.trim();const raw=$('set-firebase-cfg').value.trim();if(id&&raw){localStorage.setItem('cal_sync_id',id);localStorage.setItem('cal_fb_raw',raw);window.syncId=id;connectCloud(raw);}};window.setTheme=t=>{config.theme=t;applyTheme();persistConfig();};window.applyTheme=()=>{document.body.className=`theme-${config.theme}`;if(config.bg){document.body.style.backgroundImage=`url('${config.bg}')`;document.body.classList.add('has-custom-bg');}else{document.body.style.backgroundImage='';document.body.classList.remove('has-custom-bg');}};window.uploadBg=e=>{const r=new FileReader();r.onload=ev=>{config.bg=ev.target.result;applyTheme();persistConfig();};if(e.target.files[0])r.readAsDataURL(e.target.files[0]);};window.clearBg=()=>{config.bg='';applyTheme();persistConfig();};window.renderSettingsLists=()=>{$('set-cd-list').innerHTML=(config.countdowns||[]).map((c,i)=>`<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');$('set-habit-list').innerHTML=(config.habits||[]).map((h,i)=>`<div class="list-item"><span style="font-size:0.9rem">✦ ${h}</span><button class="btn-icon btn-delete" onclick="delHabit(${i})">×</button></div>`).join('');};window.addCd=()=>{const n=$('new-cd-name').value,d=$('new-cd-date').value;if(n&&d){config.countdowns.push({name:n,date:d});persistConfig();$('new-cd-name').value='';}};window.delCd=i=>{config.countdowns.splice(i,1);persistConfig();};window.addHabit=()=>{const t=$('new-habit-text').value.trim();if(t){config.habits=config.habits||[];config.habits.push(t);persistConfig();$('new-habit-text').value='';}};window.delHabit=i=>{config.habits.splice(i,1);persistConfig();};
+        
+        function renderDayModal(k){
+            const d=getDayData(k);
+            document.querySelectorAll('.mood-emoji').forEach(e=>{e.className=`mood-emoji ${e.dataset.m===d.mood?'active':''}`;});
+            
+            // Render Schedules with In-Place Edit
+            const sList=d.schedules.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+            $('list-sche').innerHTML=sList.map((s,i)=>{
+                if(editingItem.type==='sche' && editingItem.id===i) {
+                    return `<div class="list-item" style="background:var(--glass)"><input type="time" id="edit-time-${i}" value="${s.time}" style="margin-right:5px;border:1px solid var(--accent);border-radius:5px;padding:2px;"><input type="text" id="edit-text-${i}" class="edit-input" value="${s.text}" onkeydown="e=>e.key==='Enter'&&saveEdit('sche',${i})"><div class="edit-actions"><button class="btn-icon btn-save" onclick="saveEdit('sche',${i})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`;
+                }
+                return `<div class="list-item"><div class="item-text"><span class="schedule-time">${s.time||'TBD'}</span> ${s.text}</div><div class="item-actions"><button class="btn-icon" onclick="editItem('sche',${i})">✎</button><button class="btn-icon btn-delete" onclick="delItem('sche',${i})">×</button></div></div>`;
+            }).join('')||'<div class="empty-state">No schedule</div>';
+
+            // Render Todos with In-Place Edit
+            $('list-todo').innerHTML=d.todos.map((t,i)=>{
+                if(editingItem.type==='todo' && editingItem.id===i) {
+                    return `<div class="list-item" style="background:var(--glass)"><input type="text" id="edit-todo-${i}" class="edit-input" value="${t}" onkeydown="e=>e.key==='Enter'&&saveEdit('todo',${i})"><div class="edit-actions"><button class="btn-icon btn-save" onclick="saveEdit('todo',${i})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`;
+                }
+                return `<div class="list-item"><div class="item-text">◻ ${t}</div><div class="item-actions"><button class="btn-icon" onclick="finTask(${i})">✓</button><button class="btn-icon" onclick="editItem('todo',${i})">✎</button><button class="btn-icon btn-delete" onclick="delItem('todo',${i})">×</button></div></div>`;
+            }).join('')||'<div class="empty-state">No pending tasks</div>';
+
+            $('list-done').innerHTML=d.dones.map((t,i)=>`<div class="list-item done-item"><div class="item-text">◼ ${t}</div><div class="item-actions"><button class="btn-icon" onclick="undoTask(${i})">↩</button><button class="btn-icon btn-delete" onclick="delItem('done',${i})">×</button></div></div>`).join('');
+
+            // Render Thoughts with In-Place Edit
+            $('list-thought').innerHTML=d.thoughts.map((t,i)=>{
+                if(editingItem.type==='thought' && editingItem.id===t.id) {
+                    return `<div class="list-item thought-card" style="background:var(--glass)"><textarea id="edit-thought-${t.id}" class="edit-input" style="height:60px;resize:none">${t.text}</textarea><div class="edit-actions" style="align-self:flex-end;margin-top:5px;"><button class="btn-icon btn-save" onclick="saveEdit('thought',${t.id})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`;
+                }
+                return `<div class="list-item thought-card"><div class="thought-header"><span>${t.time}</span><div class="item-actions"><button class="btn-icon" onclick="editItem('thought',${t.id})">✎</button><button class="btn-icon btn-delete" onclick="delItem('thought',${t.id})">×</button></div></div><div class="thought-body">${t.text}</div></div>`;
+            }).join('')||'<div class="empty-state">Empty mind</div>';
+        }
+
+        // CRUD & New Edit Logic
+        window.setMood=m=>{const d=getDayData(selKey);d.mood=(d.mood===m)?null:m;saveDayData(selKey,d);};window.addSche=()=>{const t=$('in-sche-time').value,x=$('in-sche-text').value.trim();if(x){const d=getDayData(selKey);d.schedules.push({time:t,text:x});saveDayData(selKey,d);$('in-sche-text').value='';}};window.addTodo=()=>{const x=$('in-todo').value.trim();if(x){const d=getDayData(selKey);d.todos.push(x);saveDayData(selKey,d);$('in-todo').value='';}};window.addThought=()=>{const x=$('in-thought').value.trim();if(x){const d=getDayData(selKey);const now=new Date();const timeStr=now.toLocaleString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});d.thoughts.push({id:Date.now(),text:x,time:timeStr});saveDayData(selKey,d);$('in-thought').value='';}};window.delItem=(type,id)=>{if(!confirm("Delete?"))return;const d=getDayData(selKey);if(type==='sche')d.schedules.splice(id,1);if(type==='todo')d.todos.splice(id,1);if(type==='done')d.dones.splice(id,1);if(type==='thought')d.thoughts=d.thoughts.filter(t=>t.id!==id);saveDayData(selKey,d);};
+        
+        // V6.1 New Edit Functions
+        window.editItem=(type,id)=>{editingItem={type,id};renderDayModal(selKey);};
+        window.cancelEdit=()=>{editingItem={type:null,id:null};renderDayModal(selKey);};
+        window.saveEdit=(type,id)=>{
+            const d=getDayData(selKey);
+            if(type==='sche'){const t=$(`edit-time-${id}`).value, x=$(`edit-text-${id}`).value.trim();if(x)d.schedules[id]={time:t,text:x};}
+            if(type==='todo'){const x=$(`edit-todo-${id}`).value.trim();if(x)d.todos[id]=x;}
+            if(type==='thought'){const x=$(`edit-thought-${id}`).value.trim();if(x)d.thoughts.find(t=>t.id===id).text=x;}
+            editingItem={type:null,id:null}; saveDayData(selKey,d);
+        };
+
+        window.finTask=i=>{const d=getDayData(selKey);d.dones.unshift(d.todos.splice(i,1)[0]);saveDayData(selKey,d);};window.undoTask=i=>{const d=getDayData(selKey);d.todos.push(d.dones.splice(i,1)[0]);saveDayData(selKey,d);};
+        window.openSettings=()=>{ $('modal-settings').classList.add('active'); $('set-sync-id').value=syncId; $('set-firebase-cfg').value=localStorage.getItem('cal_fb_raw')||''; renderSettingsLists();};window.closeModal=id=>{$(id).classList.remove('active');editingItem={type:null,id:null};};window.saveSettings=()=>{const id=$('set-sync-id').value.trim();const raw=$('set-firebase-cfg').value.trim();if(id&&raw){localStorage.setItem('cal_sync_id',id);localStorage.setItem('cal_fb_raw',raw);window.syncId=id;connectCloud(raw);}};window.setTheme=t=>{config.theme=t;applyTheme();persistConfig();};window.applyTheme=()=>{document.body.className=`theme-${config.theme}`;if(config.bg){document.body.style.backgroundImage=`url('${config.bg}')`;document.body.classList.add('has-custom-bg');}else{document.body.style.backgroundImage='';document.body.classList.remove('has-custom-bg');}};window.uploadBg=e=>{const r=new FileReader();r.onload=ev=>{config.bg=ev.target.result;applyTheme();persistConfig();};if(e.target.files[0])r.readAsDataURL(e.target.files[0]);};window.clearBg=()=>{config.bg='';applyTheme();persistConfig();};window.renderSettingsLists=()=>{$('set-cd-list').innerHTML=(config.countdowns||[]).map((c,i)=>`<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');$('set-habit-list').innerHTML=(config.habits||[]).map((h,i)=>`<div class="list-item"><span style="font-size:0.9rem">✦ ${h}</span><button class="btn-icon btn-delete" onclick="delHabit(${i})">×</button></div>`).join('');};window.addCd=()=>{const n=$('new-cd-name').value,d=$('new-cd-date').value;if(n&&d){config.countdowns.push({name:n,date:d});persistConfig();$('new-cd-name').value='';}};window.delCd=i=>{config.countdowns.splice(i,1);persistConfig();};window.addHabit=()=>{const t=$('new-habit-text').value.trim();if(t){config.habits=config.habits||[];config.habits.push(t);persistConfig();$('new-habit-text').value='';}};window.delHabit=i=>{config.habits.splice(i,1);persistConfig();};
         function updateClock(){const n=new Date();$('clock-time').innerText=n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});$('clock-sec').innerText=String(n.getSeconds()).padStart(2,'0');$('clock-date').innerText=n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}window.renderQuote=()=>{if(quoteIdx<0)quoteIdx=quotes.length-1;if(quoteIdx>=quotes.length)quoteIdx=0;$('quote-area').innerText=`"${quotes[quoteIdx]}" — Erich Fromm`;};window.changeQuote=(dir)=>{quoteIdx+=dir;renderQuote();};
-        async function init(){applyTheme();updateClock();setInterval(updateClock,1000);renderQuote();renderCal();renderWidgets();const fbRaw=localStorage.getItem('cal_fb_raw');if(fbRaw&&syncId)connectCloud(fbRaw);document.getElementById('modal-day').addEventListener('click',e=>{if(e.target.id==='modal-day')closeModal('modal-day');});document.getElementById('modal-settings').addEventListener('click',e=>{if(e.target.id==='modal-settings')closeModal('modal-settings');});$('in-todo').onkeypress=e=>e.key==='Enter'&&addTodo();$('in-sche-text').onkeypress=e=>e.key==='Enter'&&addSche();$('in-thought').onkeypress=e=>e.key==='Enter'&&!e.shiftKey&&(e.preventDefault(),addThought());}init();
+        
+        // V6.1 Fixed Input Event Listeners (using onkeydown)
+        async function init(){applyTheme();updateClock();setInterval(updateClock,1000);renderQuote();renderCal();renderWidgets();const fbRaw=localStorage.getItem('cal_fb_raw');if(fbRaw&&syncId)connectCloud(fbRaw);document.getElementById('modal-day').addEventListener('click',e=>{if(e.target.id==='modal-day')closeModal('modal-day');});document.getElementById('modal-settings').addEventListener('click',e=>{if(e.target.id==='modal-settings')closeModal('modal-settings');});
+            $('in-todo').addEventListener('keydown',e=>e.key==='Enter'&&addTodo());
+            $('in-sche-text').addEventListener('keydown',e=>e.key==='Enter'&&addSche());
+            $('in-thought').addEventListener('keydown',e=>e.key==='Enter'&&!e.shiftKey&&(e.preventDefault(),addThought()));
+            $('new-habit-text').addEventListener('keydown',e=>e.key==='Enter'&&addHabit());
+        }init();
     </script>
 </body>
 </html>
