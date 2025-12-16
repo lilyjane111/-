@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>My Time</title>
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=5">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=5">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=6">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=6">
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -21,11 +21,11 @@
             --glass-border: rgba(255, 255, 255, 0.6);
             --text-main: #2d3436;
             --text-sub: #636e72;
-            --accent: #2d3436; /* Black accent for minimal */
+            --accent: #2d3436;
             --danger: #ff7675;
             --success: #55efc4;
             --shadow: 0 10px 40px rgba(0,0,0,0.05);
-            --radius: 24px;
+            --radius: 20px;
             --font-main: 'Inter', sans-serif;
             --font-serif: 'Playfair Display', serif;
         }
@@ -46,190 +46,125 @@
             color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden;
             transition: background 0.5s ease, color 0.3s ease;
         }
-        
-        /* Custom Background Overlay */
         .bg-overlay { position: fixed; inset: 0; z-index: -1; transition: background 0.3s; }
         body.has-custom-bg .bg-overlay { background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); }
 
         /* --- Header & Clock --- */
-        header { padding: 30px 20px 10px; text-align: center; flex-shrink: 0; }
+        header { padding: 20px; text-align: center; flex-shrink: 0; }
         .clock-container { display: inline-flex; align-items: baseline; gap: 5px; font-family: var(--font-serif); }
-        .time-big { font-size: 3.5rem; font-weight: 700; line-height: 1; letter-spacing: -2px; }
-        .time-sec { font-size: 1.5rem; font-weight: 400; opacity: 0.7; }
-        .date-display { margin-top: 5px; font-size: 0.9rem; opacity: 0.8; letter-spacing: 1px; text-transform: uppercase; }
+        .time-big { font-size: 3rem; font-weight: 700; line-height: 1; letter-spacing: -2px; }
+        .time-sec { font-size: 1.2rem; font-weight: 400; opacity: 0.7; }
+        .date-display { margin-top: 2px; font-size: 0.8rem; opacity: 0.8; letter-spacing: 1px; text-transform: uppercase; }
 
-        /* --- Settings Button --- */
-        .settings-trigger {
-            position: absolute; top: 20px; right: 20px;
-            width: 40px; height: 40px; border-radius: 50%;
-            background: var(--glass); border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: transform 0.3s; z-index: 100;
-            font-size: 1.2rem;
-        }
+        .settings-trigger { position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; border-radius: 50%; background: var(--glass); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s; z-index: 100; font-size: 1.1rem; }
         .settings-trigger:hover { transform: rotate(90deg); }
         .sync-dot { width: 8px; height: 8px; background: #ccc; border-radius: 50%; position: absolute; top: 0; right: 0; }
         .sync-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
 
-        /* --- Main Layout --- */
+        /* --- Main Layout (V6 New 3-Column Grid) --- */
         .layout-grid {
-            flex: 1; display: grid; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; width: 100%;
-            grid-template-columns: 1.6fr 1fr; /* Desktop Ratio */
-            overflow: hidden; /* Content scrolls inside cards */
+            flex: 1; display: grid; gap: 15px; padding: 15px 20px; max-width: 1400px; margin: 0 auto; width: 100%;
+            grid-template-columns: 1.2fr 0.9fr 0.8fr; /* Left(Lists), Mid(Habits/CD), Right(Cal) */
+            grid-template-rows: 1fr; overflow: hidden;
         }
-        @media (max-width: 900px) {
-            .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; overflow-y: auto; display: block; }
-            .glass-card { margin-bottom: 20px; }
-        }
+        @media (max-width: 1100px) { .layout-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; overflow-y: auto; } .right-col.calendar-col { grid-column: span 2; grid-row: 1; } }
+        @media (max-width: 700px) { .layout-grid { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; } }
 
-        .glass-card {
-            background: var(--glass); border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: var(--radius); box-shadow: var(--shadow);
-            padding: 25px; display: flex; flex-direction: column; overflow: hidden;
-            transition: transform 0.2s;
-        }
+        .col-container { display: flex; flex-direction: column; gap: 15px; overflow: hidden; height: 100%; }
+        .glass-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s; }
 
-        /* --- Calendar --- */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .month-title { font-family: var(--font-serif); font-size: 1.8rem; font-weight: 700; }
-        .nav-btn { background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--text-sub); transition: color 0.2s; padding: 0 10px; }
-        .nav-btn:hover { color: var(--accent); }
-        .today-btn { font-size: 0.8rem; padding: 4px 12px; border: 1px solid var(--accent); border-radius: 20px; color: var(--accent); background: transparent; cursor: pointer; margin-left: 10px; }
+        /* --- Compact Calendar (V6 Redesign) --- */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .month-title { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 700; }
+        .nav-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--text-sub); padding: 0 5px; }
+        .today-btn { font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--accent); border-radius: 12px; color: var(--accent); background: transparent; cursor: pointer; margin-left: 5px; }
 
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; height: 100%; align-content: start; overflow-y: auto; }
-        .day-label { text-align: center; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; text-transform: uppercase; margin-bottom: 10px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; align-content: start; }
+        .day-label { text-align: center; font-size: 0.7rem; color: var(--text-sub); font-weight: 600; margin-bottom: 5px; }
         .date-cell {
-            aspect-ratio: 1; border-radius: 16px; background: rgba(0,0,0,0.03);
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding-top: 8px; cursor: pointer; transition: all 0.2s; position: relative;
+            border-radius: 10px; background: rgba(0,0,0,0.02); padding: 6px 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; position: relative; min-height: 36px;
         }
-        .date-cell:hover { background: rgba(0,0,0,0.08); transform: translateY(-2px); }
-        .date-cell.today { background: var(--accent); color: var(--bg-color); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .date-cell span { font-size: 1.1rem; font-weight: 500; }
-        
-        .dots-container { display: flex; gap: 3px; margin-top: auto; margin-bottom: 8px; }
-        .dot { width: 5px; height: 5px; border-radius: 50%; opacity: 0.8; }
+        .date-cell:hover { background: rgba(0,0,0,0.06); }
+        .date-cell.today { background: var(--accent); color: var(--bg-color); }
+        .date-cell span { font-size: 0.9rem; font-weight: 500; line-height: 1; }
+        .dots-container { display: flex; gap: 2px; margin-top: 3px; }
+        .dot { width: 4px; height: 4px; border-radius: 50%; }
         .dot-task { background: var(--danger); }
         .dot-done { background: var(--success); }
-        .mood-corner { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; }
+        .mood-corner { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; }
 
-        /* --- Right Column Widgets --- */
-        .right-col { display: flex; flex-direction: column; gap: 20px; height: 100%; overflow: hidden; }
-        
-        /* Countdown */
-        .countdown-box { text-align: center; padding: 20px; position: relative; flex-shrink: 0; }
-        .cd-nav { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.5rem; color: var(--text-sub); opacity: 0.3; cursor: pointer; padding: 10px; }
+        /* --- Widgets --- */
+        .countdown-box { text-align: center; padding: 15px; position: relative; flex-shrink: 0; }
+        .cd-nav { position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; color: var(--text-sub); opacity: 0.3; cursor: pointer; padding: 5px; }
         .cd-prev { left: 5px; } .cd-next { right: 5px; }
-        .cd-nav:hover { opacity: 1; color: var(--accent); }
-        .cd-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-sub); margin-bottom: 5px; }
-        .cd-number { font-family: var(--font-serif); font-size: 3rem; font-weight: 700; color: var(--accent); line-height: 1; }
-        .cd-number span { font-size: 1rem; font-family: var(--font-main); font-weight: 400; margin-left: 5px; }
-        .cd-date { font-size: 0.85rem; color: var(--text-sub); margin-top: 5px; opacity: 0.7; }
+        .cd-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-sub); margin-bottom: 2px; }
+        .cd-number { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+        .cd-number span { font-size: 0.8rem; font-family: var(--font-main); font-weight: 400; margin-left: 3px; }
+        .cd-date { font-size: 0.75rem; color: var(--text-sub); opacity: 0.7; }
 
-        /* Overview Lists */
         .overview-box { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-        .box-title { font-size: 1rem; font-weight: 700; margin-bottom: 15px; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px; display: flex; align-items: center; gap: 8px; color: var(--accent); }
-        .list-scroll { overflow-y: auto; flex: 1; padding-right: 5px; }
-        .overview-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.9rem; cursor: pointer; 
-        }
+        .box-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px; display: flex; align-items: center; gap: 6px; color: var(--accent); }
+        .list-scroll { overflow-y: auto; flex: 1; padding-right: 2px; }
+        .overview-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.03); font-size: 0.85rem; cursor: pointer; }
         .overview-item:hover { color: var(--accent); }
-        .tag-date { font-size: 0.75rem; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; color: var(--text-sub); }
-        .tag-date.overdue { color: var(--danger); font-weight:bold; }
-        .empty-state { text-align: center; color: var(--text-sub); font-style: italic; opacity: 0.5; margin-top: 20px; font-size: 0.9rem; }
+        .tag-date { font-size: 0.7rem; background: rgba(0,0,0,0.04); padding: 1px 5px; border-radius: 4px; color: var(--text-sub); white-space: nowrap; }
+        .tag-date.overdue { color: var(--danger); background: rgba(255, 118, 117, 0.1); font-weight: 600; }
+        .empty-state { text-align: center; color: var(--text-sub); font-style: italic; opacity: 0.5; margin-top: 15px; font-size: 0.85rem; }
+        
+        .habit-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 0.9rem; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .habit-icon { color: var(--accent); opacity: 0.6; font-size: 0.8rem; }
 
-        /* NEW: Habits & Mantras styles */
-        .habit-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 0.95rem; border-bottom: 1px solid rgba(0,0,0,0.03); }
-        .habit-icon { color: var(--accent); opacity: 0.7; }
-
-
-        /* --- Footer Quote --- */
-        .footer-quote-container { padding: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 15px; }
-        .footer-quote {
-            text-align: center; font-family: var(--font-serif); font-style: italic; font-size: 0.9rem;
-            color: var(--text-primary); opacity: 0.8; text-shadow: 0 1px 10px rgba(255,255,255,0.5); flex: 1; max-width: 600px;
-        }
-        .quote-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-sub); cursor: pointer; opacity: 0.5; padding: 5px 10px; }
+        /* --- Footer --- */
+        .footer-quote-container { padding: 10px 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .footer-quote { text-align: center; font-family: var(--font-serif); font-style: italic; font-size: 0.85rem; color: var(--text-primary); opacity: 0.75; flex: 1; max-width: 500px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .quote-btn { background: none; border: none; font-size: 1.2rem; color: var(--text-sub); cursor: pointer; opacity: 0.4; padding: 2px 5px; }
         .quote-btn:hover { opacity: 1; color: var(--accent); }
 
-        /* --- Modals --- */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
-            display: flex; justify-content: center; align-items: center;
-        }
+        /* --- Modals (Unchanged) --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; display: flex; justify-content: center; align-items: center; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        
-        .modal-card {
-            background: var(--glass); border: 1px solid var(--glass-border);
-            width: 90%; max-width: 600px; height: 85vh; border-radius: var(--radius);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column;
-            transform: translateY(30px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
+        .modal-card { background: var(--glass); border: 1px solid var(--glass-border); width: 90%; max-width: 500px; height: 80vh; border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .modal-overlay.active .modal-card { transform: translateY(0); }
-        
-        /* Mobile Modal: Slide from bottom */
-        @media (max-width: 600px) {
-            .modal-overlay { align-items: flex-end; }
-            .modal-card { width: 100%; height: 92vh; border-radius: 24px 24px 0 0; transform: translateY(100%); }
-            .modal-overlay.active .modal-card { transform: translateY(0); }
-        }
-
-        .modal-header { padding: 25px 30px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .modal-date { font-family: var(--font-serif); font-size: 2.5rem; line-height: 1; font-weight: 700; color: var(--accent); }
-        .modal-sub { font-size: 1rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; }
-        
-        .modal-body { flex: 1; overflow-y: auto; padding: 20px 30px; display: flex; flex-direction: column; gap: 30px; }
-
-        /* Lists inside modal */
-        .section-header { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-sub); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .input-row { display: flex; gap: 10px; margin-bottom: 15px; }
-        .std-input { flex: 1; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.1); padding: 12px; border-radius: 12px; font-family: inherit; color: var(--text-primary); transition: 0.2s; }
-        .std-input:focus { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
-        .action-btn { width: 44px; height: 44px; border: none; border-radius: 12px; background: var(--accent); color: var(--bg-color); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; transition: 0.2s; }
-        .action-btn:hover { opacity: 0.9; transform: scale(1.05); }
-
-        .list-item { background: rgba(255,255,255,0.4); border-radius: 12px; padding: 12px 15px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; border: 1px solid transparent; }
+        @media (max-width: 600px) { .modal-overlay { align-items: flex-end; } .modal-card { width: 100%; height: 90vh; border-radius: 24px 24px 0 0; transform: translateY(100%); } }
+        .modal-header { padding: 20px 25px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .modal-date { font-family: var(--font-serif); font-size: 2rem; line-height: 1; font-weight: 700; color: var(--accent); }
+        .modal-sub { font-size: 0.9rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; }
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px 25px; display: flex; flex-direction: column; gap: 25px; }
+        .section-header { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-sub); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .std-input { flex: 1; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; font-family: inherit; color: var(--text-primary); transition: 0.2s; font-size: 0.9rem; }
+        .std-input:focus { background: #fff; border-color: var(--accent); }
+        .action-btn { width: 38px; height: 38px; border: none; border-radius: 10px; background: var(--accent); color: var(--bg-color); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; transition: 0.2s; }
+        .action-btn:hover { opacity: 0.9; }
+        .list-item { background: rgba(255,255,255,0.4); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; border: 1px solid transparent; }
         .list-item:hover { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.05); }
-        .item-text { flex: 1; font-size: 0.95rem; margin-right: 10px; word-break: break-word; }
-        .item-meta { font-size: 0.75rem; opacity: 0.6; margin-right: 10px; }
-        .item-actions { display: flex; gap: 5px; opacity: 0.6; }
+        .item-text { flex: 1; font-size: 0.9rem; margin-right: 10px; word-break: break-word; }
+        .item-meta { font-size: 0.7rem; opacity: 0.6; margin-right: 8px; }
+        .item-actions { display: flex; gap: 4px; opacity: 0.6; }
         .list-item:hover .item-actions { opacity: 1; }
-        .btn-icon { background: none; border: none; cursor: pointer; padding: 5px; font-size: 1rem; color: var(--text-sub); transition: 0.2s; }
-        .btn-icon:hover { color: var(--accent); transform: scale(1.2); }
-        .btn-delete:hover { color: var(--danger); }
-        
-        /* Specific Styles */
+        .btn-icon { background: none; border: none; cursor: pointer; padding: 4px; font-size: 0.9rem; color: var(--text-sub); transition: 0.2s; }
+        .btn-icon:hover { color: var(--accent); } .btn-delete:hover { color: var(--danger); }
         .done-item { opacity: 0.6; text-decoration: line-through; }
-        .schedule-time { font-family: monospace; font-weight: bold; color: var(--accent); background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
-        .thought-card { flex-direction: column; align-items: flex-start; gap: 5px; }
-        .thought-header { width: 100%; display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-sub); border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 5px; margin-bottom: 5px;}
-
-        /* Mood Selector */
-        .mood-grid { display: flex; justify-content: center; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .mood-emoji { font-size: 2rem; cursor: pointer; transition: 0.2s; opacity: 0.4; filter: grayscale(1); }
-        .mood-emoji:hover, .mood-emoji.active { transform: scale(1.3); opacity: 1; filter: grayscale(0); }
-
-        /* Settings Modal Specifics */
-        .settings-container { padding: 30px; display: flex; flex-direction: column; gap: 30px; }
-        .setting-block h3 { margin: 0 0 15px 0; font-size: 1rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; }
-        .theme-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-        .theme-swatch { padding: 8px 15px; border-radius: 8px; cursor: pointer; border: 1px solid var(--glass-border); font-size: 0.9rem; transition: 0.2s; }
+        .schedule-time { font-family: monospace; font-weight: bold; color: var(--accent); background: rgba(0,0,0,0.05); padding: 2px 5px; border-radius: 4px; font-size: 0.8rem; }
+        .thought-card { flex-direction: column; align-items: flex-start; gap: 4px; }
+        .thought-header { width: 100%; display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-sub); border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 4px; margin-bottom: 4px;}
+        .mood-grid { display: flex; justify-content: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .mood-emoji { font-size: 1.8rem; cursor: pointer; transition: 0.2s; opacity: 0.4; filter: grayscale(1); }
+        .mood-emoji:hover, .mood-emoji.active { transform: scale(1.2); opacity: 1; filter: grayscale(0); }
+        .settings-container { padding: 25px; display: flex; flex-direction: column; gap: 25px; }
+        .setting-block h3 { margin: 0 0 12px 0; font-size: 0.9rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; }
+        .theme-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .theme-swatch { padding: 6px 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--glass-border); font-size: 0.85rem; transition: 0.2s; }
         .theme-swatch:hover, .theme-swatch.active { border-color: var(--accent); background: var(--accent); color: var(--bg-color); }
-        
-        .config-area { width: 100%; height: 100px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 10px; font-family: monospace; font-size: 0.8rem; resize: none; margin-top: 10px;}
-        .full-btn { width: 100%; padding: 12px; background: var(--text-primary); color: var(--bg-color); border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .config-area { width: 100%; height: 80px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.1); border-radius: 10px; padding: 8px; font-family: monospace; font-size: 0.8rem; resize: none; margin-top: 8px;}
+        .full-btn { width: 100%; padding: 10px; background: var(--text-primary); color: var(--bg-color); border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 8px; font-size: 0.9rem;}
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     </style>
 </head>
 <body class="theme-white">
     <div class="bg-overlay"></div>
-
     <header>
         <div class="clock-container">
             <div class="time-big" id="clock-time">00:00</div>
@@ -237,28 +172,26 @@
         </div>
         <div class="date-display" id="clock-date">Loading...</div>
     </header>
-
-    <div class="settings-trigger" onclick="openSettings()">
-        <div class="sync-dot" id="sync-dot"></div>
-        ⚙️
-    </div>
+    <div class="settings-trigger" onclick="openSettings()"><div class="sync-dot" id="sync-dot"></div>⚙️</div>
 
     <div class="layout-grid">
-        <div class="glass-card calendar-container">
-            <div class="calendar-header">
-                <span class="month-title" id="cal-title">Month</span>
-                <div style="display:flex; align-items:center">
-                    <button class="nav-btn" onclick="moveMonth(-1)">❮</button>
-                    <button class="nav-btn" onclick="moveMonth(1)">❯</button>
-                    <button class="today-btn" onclick="goToday()">TODAY</button>
-                </div>
+        <div class="col-container left-col">
+            <div class="glass-card overview-box">
+                <div class="box-title">📋 Pending Tasks</div>
+                <div class="list-scroll" id="overview-tasks"></div>
             </div>
-            <div class="calendar-grid" id="cal-grid">
-                </div>
+            <div class="glass-card overview-box">
+                <div class="box-title">📅 Upcoming Schedule</div>
+                <div class="list-scroll" id="overview-schedule"></div>
+            </div>
         </div>
 
-        <div class="right-col">
-            <div class="glass-card countdown-box">
+        <div class="col-container mid-col">
+            <div class="glass-card overview-box" style="flex:none;">
+                <div class="box-title">✨ Habits & Mantras</div>
+                <div class="list-scroll" id="overview-habits" style="max-height: 200px;"></div>
+            </div>
+             <div class="glass-card countdown-box">
                 <button class="cd-nav cd-prev" onclick="swapCd(-1)">‹</button>
                 <div onclick="openSettings()" style="cursor:pointer">
                     <div class="cd-label" id="cd-title">Countdown</div>
@@ -267,21 +200,19 @@
                 </div>
                 <button class="cd-nav cd-next" onclick="swapCd(1)">›</button>
             </div>
+        </div>
 
-            <div class="glass-card overview-box" style="flex:none; min-height: auto;">
-                <div class="box-title">✨ Habits & Mantras</div>
-                <div class="list-scroll" id="overview-habits" style="max-height: 150px;">
+        <div class="col-container right-col calendar-col">
+            <div class="glass-card calendar-container" style="height: auto;">
+                <div class="calendar-header">
+                    <span class="month-title" id="cal-title">Month</span>
+                    <div style="display:flex; align-items:center">
+                        <button class="nav-btn" onclick="moveMonth(-1)">❮</button>
+                        <button class="nav-btn" onclick="moveMonth(1)">❯</button>
+                        <button class="today-btn" onclick="goToday()">TODAY</button>
                     </div>
-            </div>
-
-            <div class="glass-card overview-box">
-                <div class="box-title">📋 Pending Tasks</div>
-                <div class="list-scroll" id="overview-tasks"></div>
-            </div>
-
-            <div class="glass-card overview-box">
-                <div class="box-title">📅 Upcoming Schedule</div>
-                <div class="list-scroll" id="overview-schedule"></div>
+                </div>
+                <div class="calendar-grid" id="cal-grid"></div>
             </div>
         </div>
     </div>
@@ -293,108 +224,25 @@
     </div>
 
     <div class="modal-overlay" id="modal-day">
-        <div class="modal-card" onclick="event.stopPropagation()"> <div class="modal-header">
-                <div>
-                    <div class="modal-date" id="modal-day-num">24</div>
-                    <div class="modal-sub" id="modal-day-meta">Oct 2025 · Friday</div>
-                </div>
-            </div>
-            
-            <div class="mood-grid">
-                <div class="mood-emoji" data-m="happy" onclick="setMood('happy')">😄</div>
-                <div class="mood-emoji" data-m="calm" onclick="setMood('calm')">😌</div>
-                <div class="mood-emoji" data-m="normal" onclick="setMood('normal')">😐</div>
-                <div class="mood-emoji" data-m="tired" onclick="setMood('tired')">😫</div>
-                <div class="mood-emoji" data-m="sad" onclick="setMood('sad')">😢</div>
-            </div>
-
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header"><div><div class="modal-date" id="modal-day-num"></div><div class="modal-sub" id="modal-day-meta"></div></div></div>
+            <div class="mood-grid"><div class="mood-emoji" data-m="happy" onclick="setMood('happy')">😄</div><div class="mood-emoji" data-m="calm" onclick="setMood('calm')">😌</div><div class="mood-emoji" data-m="normal" onclick="setMood('normal')">😐</div><div class="mood-emoji" data-m="tired" onclick="setMood('tired')">😫</div><div class="mood-emoji" data-m="sad" onclick="setMood('sad')">😢</div></div>
             <div class="modal-body">
-                <div>
-                    <div class="section-header">Schedule</div>
-                    <div class="input-row">
-                        <input type="time" class="std-input" id="in-sche-time" style="flex:0.4">
-                        <input type="text" class="std-input" id="in-sche-text" placeholder="Event details..." onkeypress="e => e.key==='Enter' && addSche()">
-                        <button class="action-btn" onclick="addSche()">+</button>
-                    </div>
-                    <div id="list-sche"></div>
-                </div>
-
-                <div>
-                    <div class="section-header">To-Do List</div>
-                    <div class="input-row">
-                        <input type="text" class="std-input" id="in-todo" placeholder="Add a task..." onkeypress="e => e.key==='Enter' && addTodo()">
-                        <button class="action-btn" onclick="addTodo()">+</button>
-                    </div>
-                    <div id="list-todo"></div>
-                    
-                    <div class="section-header" style="margin-top:20px; font-size:0.8rem; opacity:0.7">Completed</div>
-                    <div id="list-done"></div>
-                </div>
-
-                <div>
-                    <div class="section-header">Thoughts</div>
-                    <div class="input-row">
-                        <textarea class="std-input" id="in-thought" placeholder="Write something..." style="height:60px; resize:none"></textarea>
-                        <button class="action-btn" style="height:60px" onclick="addThought()">✎</button>
-                    </div>
-                    <div id="list-thought"></div>
-                </div>
+                <div><div class="section-header">Schedule</div><div class="input-row"><input type="time" class="std-input" id="in-sche-time" style="flex:0.4"><input type="text" class="std-input" id="in-sche-text" placeholder="Event details..." onkeypress="e => e.key==='Enter' && addSche()"><button class="action-btn" onclick="addSche()">+</button></div><div id="list-sche"></div></div>
+                <div><div class="section-header">To-Do List</div><div class="input-row"><input type="text" class="std-input" id="in-todo" placeholder="Add a task..." onkeypress="e => e.key==='Enter' && addTodo()"><button class="action-btn" onclick="addTodo()">+</button></div><div id="list-todo"></div><div class="section-header" style="margin-top:20px; font-size:0.8rem; opacity:0.7">Completed</div><div id="list-done"></div></div>
+                <div><div class="section-header">Thoughts</div><div class="input-row"><textarea class="std-input" id="in-thought" placeholder="Write something..." style="height:60px; resize:none"></textarea><button class="action-btn" style="height:60px" onclick="addThought()">✎</button></div><div id="list-thought"></div></div>
             </div>
         </div>
     </div>
-
     <div class="modal-overlay" id="modal-settings">
         <div class="modal-card" style="height:auto; max-height:90vh;" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-date" style="font-size:1.8rem">Settings</div>
-            </div>
+            <div class="modal-header"><div class="modal-date" style="font-size:1.5rem">Settings</div></div>
             <div class="modal-body settings-container">
-                
-                <div class="setting-block">
-                    <h3>☁️ Cloud Sync (Firebase) <span id="sync-status-display" style="font-size:0.9rem; float:right; opacity:0.7"></span></h3>
-                    <input type="text" class="std-input" id="set-sync-id" placeholder="Sync ID (e.g. my_secret_123)">
-                    <textarea class="config-area" id="set-firebase-cfg" placeholder="Paste Firebase Config Object here..."></textarea>
-                    <button class="full-btn" onclick="saveSettings()">Connect & Save</button>
-                </div>
-
-                <div class="setting-block">
-                    <h3>🎨 Theme</h3>
-                    <div class="theme-grid">
-                        <div class="theme-swatch" onclick="setTheme('white')">Minimal White</div>
-                        <div class="theme-swatch" onclick="setTheme('dark')">Midnight</div>
-                        <div class="theme-swatch" onclick="setTheme('monet')">Monet</div>
-                        <div class="theme-swatch" onclick="setTheme('morandi')">Morandi</div>
-                        <div class="theme-swatch" onclick="setTheme('sakura')">Sakura</div>
-                        <div class="theme-swatch" onclick="setTheme('nordic')">Nordic</div>
-                        <div class="theme-swatch" onclick="setTheme('cyber')">Cyberpunk</div>
-                        <div class="theme-swatch" onclick="setTheme('retro')">Retro</div>
-                    </div>
-                </div>
-
-                <div class="setting-block">
-                    <h3>✨ Habits & Mantras</h3>
-                    <div id="set-habit-list" style="margin-bottom:10px"></div>
-                    <div class="input-row">
-                        <input type="text" class="std-input" id="new-habit-text" placeholder="e.g., Sleep early, Don't compare..." onkeypress="e => e.key==='Enter' && addHabit()">
-                        <button class="action-btn" onclick="addHabit()">+</button>
-                    </div>
-                </div>
-
-                <div class="setting-block">
-                    <h3>🎉 Countdowns</h3>
-                    <div id="set-cd-list" style="margin-bottom:10px"></div>
-                    <div class="input-row">
-                        <input type="text" class="std-input" id="new-cd-name" placeholder="Name">
-                        <input type="date" class="std-input" id="new-cd-date">
-                        <button class="action-btn" onclick="addCd()">+</button>
-                    </div>
-                </div>
-                 <div class="setting-block">
-                    <h3>🖼️ Custom Background</h3>
-                    <input type="file" class="std-input" accept="image/*" onchange="uploadBg(event)">
-                    <button class="full-btn" style="background:var(--danger); margin-top:5px" onclick="clearBg()">Remove Background</button>
-                </div>
-
+                <div class="setting-block"><h3>☁️ Cloud Sync <span id="sync-status-display" style="font-size:0.8rem; float:right; opacity:0.7"></span></h3><input type="text" class="std-input" id="set-sync-id" placeholder="Sync ID"><textarea class="config-area" id="set-firebase-cfg" placeholder="Firebase Config Object"></textarea><button class="full-btn" onclick="saveSettings()">Connect & Save</button></div>
+                <div class="setting-block"><h3>🎨 Theme</h3><div class="theme-grid"><div class="theme-swatch" onclick="setTheme('white')">White</div><div class="theme-swatch" onclick="setTheme('dark')">Dark</div><div class="theme-swatch" onclick="setTheme('monet')">Monet</div><div class="theme-swatch" onclick="setTheme('sakura')">Sakura</div><div class="theme-swatch" onclick="setTheme('nordic')">Nordic</div><div class="theme-swatch" onclick="setTheme('cyber')">Cyber</div><div class="theme-swatch" onclick="setTheme('retro')">Retro</div></div></div>
+                <div class="setting-block"><h3>✨ Habits</h3><div id="set-habit-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-habit-text" placeholder="New habit..." onkeypress="e => e.key==='Enter' && addHabit()"><button class="action-btn" onclick="addHabit()">+</button></div></div>
+                <div class="setting-block"><h3>🎉 Countdowns</h3><div id="set-cd-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-cd-name" placeholder="Name"><input type="date" class="std-input" id="new-cd-date"><button class="action-btn" onclick="addCd()">+</button></div></div>
+                <div class="setting-block"><h3>🖼️ Background</h3><input type="file" class="std-input" accept="image/*" onchange="uploadBg(event)"><button class="full-btn" style="background:var(--danger); margin-top:5px" onclick="clearBg()">Clear BG</button></div>
             </div>
         </div>
     </div>
@@ -403,365 +251,57 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- State ---
-        let db = null;
-        let syncId = localStorage.getItem('cal_sync_id') || '';
-        let data = JSON.parse(localStorage.getItem('cal_data_v5') || '{}');
-        // Updated config to include habits
-        let config = JSON.parse(localStorage.getItem('cal_conf_v5') || '{"theme":"white","countdowns":[],"habits":[]}');
-        let curDate = new Date();
-        let selKey = null;
-        let cdIdx = 0;
-        let quoteIdx = 0;
-        let unsubscribe = null;
+        let db=null, syncId=localStorage.getItem('cal_sync_id')||'', data=JSON.parse(localStorage.getItem('cal_data_v5')||'{}'), config=JSON.parse(localStorage.getItem('cal_conf_v5')||'{"theme":"white","countdowns":[],"habits":[]}'), curDate=new Date(), selKey=null, cdIdx=0, quoteIdx=0, unsubscribe=null;
+        const quotes=["Love is not a sentiment which can be easily indulged in by anyone regardless of the level of maturity reached by him.","Creativity requires the courage to let go of certainties.","The paradox of love is that two beings become one and yet remain two.","Man's main task in life is to give birth to himself.","To spare oneself from grief at all cost can be achieved only at the price of total detachment.","The ability to be puzzled is the premise of all creation.","Not he who has much is rich, but he who gives much."];
+        const $=id=>document.getElementById(id); const getDayData=k=>({schedules:[],todos:[],dones:[],thoughts:[],mood:null,...data[k]}); const saveDayData=(k,d)=>{data[k]=d;persist();if(selKey===k)renderDayModal(k);renderCal();renderWidgets();};
+        function persist(){localStorage.setItem('cal_data_v5',JSON.stringify(data));if(db&&syncId)setDoc(doc(db,'calendars',syncId),{d:JSON.stringify(data),t:Date.now()}).catch(e=>status(false,'Upload Failed'));}
+        function persistConfig(){localStorage.setItem('cal_conf_v5',JSON.stringify(config));renderWidgets();renderSettingsLists();}
+        function connectCloud(raw){status(false,'Connecting...');try{let clean=raw.replace(/const\s+\w+\s*=\s*/,'').replace(/;$/,'');const obj=new Function('return '+clean)();const app=initializeApp(obj);db=getFirestore(app);if(unsubscribe)unsubscribe();unsubscribe=onSnapshot(doc(db,'calendars',syncId),snap=>{if(snap.exists()){data=JSON.parse(snap.data().d);localStorage.setItem('cal_data_v5',JSON.stringify(data));renderCal();renderWidgets();if(selKey)renderDayModal(selKey);status(true,'Synced');}else{persist();status(true,'Initialized');}},err=>{console.error(err);status(false,'Error');});}catch(e){console.error(e);status(false,'Config Error');}}
+        function status(o,m){const d=$('sync-dot'),t=$('sync-status-display');if(d)d.className=`sync-dot ${o?'online':''}`;if(t){t.innerText=m||(o?'Online':'Offline');t.style.color=o?'var(--success)':'var(--danger)';}}
 
-        // Quotes
-        const quotes = [
-            "Love is not a sentiment which can be easily indulged in by anyone regardless of the level of maturity reached by him.",
-            "Creativity requires the courage to let go of certainties.",
-            "The paradox of love is that two beings become one and yet remain two.",
-            "Man's main task in life is to give birth to himself.",
-            "To spare oneself from grief at all cost can be achieved only at the price of total detachment.",
-            "The ability to be puzzled is the premise of all creation.",
-            "Not he who has much is rich, but he who gives much."
-        ];
-
-        // --- Init ---
-        async function init() {
-            applyTheme();
-            updateClock(); setInterval(updateClock, 1000);
-            renderQuote();
-            renderCal(); renderWidgets();
-            
-            const fbRaw = localStorage.getItem('cal_fb_raw');
-            if(fbRaw && syncId) connectCloud(fbRaw);
-
-            // Listeners
-            document.getElementById('modal-day').addEventListener('click', e => { if(e.target.id === 'modal-day') closeModal('modal-day'); });
-            document.getElementById('modal-settings').addEventListener('click', e => { if(e.target.id === 'modal-settings') closeModal('modal-settings'); });
-            
-            // Enter key listeners (Improved 1)
-            $('in-todo').onkeypress = e => e.key==='Enter' && addTodo();
-            $('in-sche-text').onkeypress = e => e.key==='Enter' && addSche();
-            $('in-thought').onkeypress = e => e.key==='Enter' && !e.shiftKey && (e.preventDefault(), addThought());
-        }
-
-        // --- Helper ---
-        const $ = id => document.getElementById(id);
-        const getDayData = key => ({ schedules:[], todos:[], dones:[], thoughts:[], mood:null, ...data[key] });
-        const saveDayData = (key, d) => { data[key] = d; persist(); if(selKey === key) renderDayModal(key); renderCal(); renderWidgets(); };
-        
-        function persist() {
-            localStorage.setItem('cal_data_v5', JSON.stringify(data));
-            if(db && syncId) setDoc(doc(db, 'calendars', syncId), { d: JSON.stringify(data), t: Date.now() }).catch(e=>status(false, 'Upload Failed'));
-        }
-        
-        // New: Persist Config
-        function persistConfig() {
-             localStorage.setItem('cal_conf_v5', JSON.stringify(config));
-             renderWidgets();
-             renderSettingsLists();
-        }
-
-        // --- Cloud ---
-        function connectCloud(raw) {
-            status(false, 'Connecting...');
-            try {
-                let clean = raw.replace(/const\s+\w+\s*=\s*/, '').replace(/;$/, '');
-                const obj = new Function('return ' + clean)();
-                const app = initializeApp(obj);
-                db = getFirestore(app);
-                
-                if(unsubscribe) unsubscribe();
-                unsubscribe = onSnapshot(doc(db, 'calendars', syncId), snap => {
-                    if(snap.exists()) {
-                        data = JSON.parse(snap.data().d);
-                        localStorage.setItem('cal_data_v5', JSON.stringify(data));
-                        renderCal(); renderWidgets();
-                        if(selKey) renderDayModal(selKey);
-                        status(true, 'Synced');
-                    } else {
-                        persist(); // Init cloud
-                        status(true, 'Initialized');
-                    }
-                }, err => { console.error(err); status(false, 'Error'); });
-            } catch(e) { console.error(e); status(false, 'Config Error'); }
-        }
-        
-        function status(online, msg) {
-            const dot = $('sync-dot');
-            const txt = $('sync-status-display');
-            if(dot) dot.className = `sync-dot ${online?'online':''}`;
-            if(txt) {
-                txt.innerText = msg || (online ? 'Online' : 'Offline');
-                txt.style.color = online ? 'var(--success)' : 'var(--danger)';
-            }
-        }
-
-        // --- Calendar ---
-        window.renderCal = () => {
-            const y = curDate.getFullYear(), m = curDate.getMonth();
-            $('cal-title').innerText = new Date(y,m).toLocaleDateString('en-US', {month:'long', year:'numeric'});
-            const grid = $('cal-grid'); grid.innerHTML = '';
-            
-            ['SUN','MON','TUE','WED','THU','FRI','SAT'].forEach(d => grid.innerHTML+=`<div class="day-label">${d}</div>`);
-            for(let i=0; i<new Date(y,m,1).getDay(); i++) grid.appendChild(document.createElement('div'));
-            
-            const todayStr = new Date().toDateString();
-            const days = new Date(y,m+1,0).getDate();
-
-            for(let i=1; i<=days; i++) {
-                const date = new Date(y,m,i);
-                const key = `${y}-${m+1}-${i}`;
-                const d = data[key] || {};
-                const el = document.createElement('div');
-                el.className = `date-cell ${date.toDateString() === todayStr ? 'today' : ''}`;
-                
-                let html = `<span>${i}</span>`;
-                if(d.mood) html += `<div class="mood-corner" style="background:var(--mood-${d.mood})"></div>`;
-                
-                const tc = (d.todos?.length||0) + (d.schedules?.length||0);
-                const dc = d.dones?.length||0;
-                if(tc+dc > 0) html += `<div class="dots-container">${tc?`<div class="dot dot-task"></div>`:''}${dc?`<div class="dot dot-done"></div>`:''}</div>`;
-                
-                el.innerHTML = html;
-                el.onclick = () => openDay(key, date);
-                grid.appendChild(el);
+        // --- V6 Compact Calendar Render ---
+        window.renderCal=()=>{
+            const y=curDate.getFullYear(),m=curDate.getMonth(); $('cal-title').innerText=new Date(y,m).toLocaleDateString('en-US',{month:'short',year:'numeric'});
+            const grid=$('cal-grid'); grid.innerHTML=''; ['S','M','T','W','T','F','S'].forEach(d=>grid.innerHTML+=`<div class="day-label">${d}</div>`);
+            for(let i=0;i<new Date(y,m,1).getDay();i++)grid.appendChild(document.createElement('div'));
+            const todayStr=new Date().toDateString();
+            for(let i=1;i<=new Date(y,m+1,0).getDate();i++){
+                const date=new Date(y,m,i), key=`${y}-${m+1}-${i}`, d=data[key]||{}, el=document.createElement('div');
+                el.className=`date-cell ${date.toDateString()===todayStr?'today':''}`;
+                let html=`<span>${i}</span>`; if(d.mood)html+=`<div class="mood-corner" style="background:var(--mood-${d.mood})"></div>`;
+                const tc=(d.todos?.length||0)+(d.schedules?.length||0), dc=d.dones?.length||0;
+                if(tc+dc>0)html+=`<div class="dots-container">${tc?`<div class="dot dot-task"></div>`:''}${dc?`<div class="dot dot-done"></div>`:''}</div>`;
+                el.innerHTML=html; el.onclick=()=>openDay(key,date); grid.appendChild(el);
             }
         };
-        window.moveMonth = d => { curDate.setMonth(curDate.getMonth()+d); renderCal(); };
-        window.goToday = () => { curDate = new Date(); renderCal(); };
+        window.moveMonth=d=>{curDate.setMonth(curDate.getMonth()+d);renderCal();}; window.goToday=()=>{curDate=new Date();renderCal();};
 
-        // --- Day Modal Logic ---
-        window.openDay = (key, date) => {
-            selKey = key;
-            $('modal-day-num').innerText = date.getDate();
-            $('modal-day-meta').innerText = date.toLocaleDateString('en-US', {month:'short', year:'numeric', weekday:'long'});
-            renderDayModal(key);
-            $('modal-day').classList.add('active');
-        };
-
-        function renderDayModal(key) {
-            const d = getDayData(key);
+        // --- Widgets (Fixed Tasks & Schedule) ---
+        window.renderWidgets=()=>{
+            const cds=config.countdowns||[], elT=$('cd-title'), elD=$('cd-days'), elSub=$('cd-date-text');
+            if(!cds.length){elT.innerText='NO EVENT';elD.innerText='-';elSub.innerText='Setup in settings';}else{if(cdIdx>=cds.length)cdIdx=0;const cd=cds[cdIdx], diff=Math.ceil((new Date(cd.date)-new Date().setHours(0,0,0,0))/(86400000));elT.innerText=cd.name;elD.innerHTML=diff>0?diff:(diff===0?'NOW':Math.abs(diff));elD.innerHTML+='<span>DAYS</span>';elSub.innerText=`${cd.date} (${cdIdx+1}/${cds.length})`;}
+            $('overview-habits').innerHTML=(config.habits||[]).map(h=>`<div class="habit-item"><span class="habit-icon">✦</span> ${h}</div>`).join('')||'<div class="empty-state">Add in settings</div>';
             
-            // Mood
-            document.querySelectorAll('.mood-emoji').forEach(e => {
-                e.className = `mood-emoji ${e.dataset.m === d.mood ? 'active' : ''}`;
+            let tasks=[], sches=[]; const today=new Date(); today.setHours(0,0,0,0);
+            Object.keys(data).forEach(k=>{
+                const [y,m,d]=k.split('-').map(Number), dt=new Date(y,m-1,d), dd=data[k], ds=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+                if(dd.todos) dd.todos.forEach(t=>tasks.push({t,k,dt,ds,isOverdue:dt<today}));
+                if(dt>=today && dd.schedules) dd.schedules.forEach(s=>sches.push({s,k,dt,ds}));
             });
-
-            // Schedule
-            const sList = d.schedules.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-            $('list-sche').innerHTML = sList.map((s, i) => `
-                <div class="list-item">
-                    <div class="item-text"><span class="schedule-time">${s.time||'TBD'}</span> ${s.text}</div>
-                    <div class="item-actions">
-                        <button class="btn-icon" onclick="editItem('sche', ${i})">✎</button>
-                        <button class="btn-icon btn-delete" onclick="delItem('sche', ${i})">×</button>
-                    </div>
-                </div>`).join('') || '<div class="empty-state">No schedule</div>';
-
-            // Todo
-            $('list-todo').innerHTML = d.todos.map((t, i) => `
-                <div class="list-item">
-                    <div class="item-text">◻ ${t}</div>
-                    <div class="item-actions">
-                        <button class="btn-icon" onclick="finTask(${i})">✓</button>
-                        <button class="btn-icon" onclick="editItem('todo', ${i})">✎</button>
-                        <button class="btn-icon btn-delete" onclick="delItem('todo', ${i})">×</button>
-                    </div>
-                </div>`).join('') || '<div class="empty-state">No pending tasks</div>';
-
-            // Done
-            $('list-done').innerHTML = d.dones.map((t, i) => `
-                <div class="list-item done-item">
-                    <div class="item-text">◼ ${t}</div>
-                    <div class="item-actions">
-                        <button class="btn-icon" onclick="undoTask(${i})">↩</button>
-                        <button class="btn-icon btn-delete" onclick="delItem('done', ${i})">×</button>
-                    </div>
-                </div>`).join('');
-
-            // Thoughts (Improved 2: Full Date display)
-            $('list-thought').innerHTML = d.thoughts.map((t, i) => `
-                <div class="list-item thought-card">
-                    <div class="thought-header">
-                        <span>${t.time}</span>
-                        <div class="item-actions">
-                            <button class="btn-icon" onclick="editItem('thought', ${t.id})">✎</button>
-                            <button class="btn-icon btn-delete" onclick="delItem('thought', ${t.id})">×</button>
-                        </div>
-                    </div>
-                    <div class="thought-body">${t.text}</div>
-                </div>`).join('') || '<div class="empty-state">Empty mind</div>';
-        }
-
-        // CRUD
-        window.setMood = m => { const d=getDayData(selKey); d.mood=(d.mood===m)?null:m; saveDayData(selKey,d); };
-        
-        window.addSche = () => { const t=$('in-sche-time').value, x=$('in-sche-text').value.trim(); if(x){ const d=getDayData(selKey); d.schedules.push({time:t,text:x}); saveDayData(selKey,d); $('in-sche-text').value=''; } };
-        window.addTodo = () => { const x=$('in-todo').value.trim(); if(x){ const d=getDayData(selKey); d.todos.push(x); saveDayData(selKey,d); $('in-todo').value=''; } };
-        
-        // Improved 2: Store full date string for thoughts
-        window.addThought = () => { 
-            const x=$('in-thought').value.trim(); 
-            if(x){ 
-                const d=getDayData(selKey); 
-                // Format: YYYY/MM/DD HH:mm
-                const now = new Date();
-                const timeStr = now.toLocaleString('en-US', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false});
-                d.thoughts.push({id:Date.now(), text:x, time:timeStr}); 
-                saveDayData(selKey,d); $('in-thought').value=''; 
-            } 
+            tasks.sort((a,b)=>a.dt-b.dt); sches.sort((a,b)=>a.dt-b.dt);
+            // Removed slice(0,10) limit for V6
+            $('overview-tasks').innerHTML=tasks.map(i=>`<div class="overview-item" onclick="openDay('${i.k}',new Date('${i.dt}'))"><div style="flex:1">${i.t}</div><div class="tag-date ${i.isOverdue?'overdue':''}">${i.ds}</div></div>`).join('')||'<div class="empty-state">Nothing pending</div>';
+            $('overview-schedule').innerHTML=sches.map(i=>`<div class="overview-item" onclick="openDay('${i.k}',new Date('${i.dt}'))"><div style="flex:1"><span style="font-family:monospace;color:var(--accent)">${i.s.time||'--:--'}</span> ${i.s.text}</div><div class="tag-date">${i.ds}</div></div>`).join('')||'<div class="empty-state">No upcoming schedule</div>';
         };
+        window.swapCd=d=>{cdIdx+=d;renderWidgets();};
 
-        window.delItem = (type, id) => {
-            if(!confirm("Delete?")) return;
-            const d = getDayData(selKey);
-            if(type==='sche') d.schedules.splice(id,1);
-            if(type==='todo') d.todos.splice(id,1);
-            if(type==='done') d.dones.splice(id,1);
-            if(type==='thought') d.thoughts = d.thoughts.filter(t=>t.id!==id);
-            saveDayData(selKey, d);
-        };
-
-        window.editItem = (type, id) => {
-            const d = getDayData(selKey);
-            let val = '';
-            if(type==='sche') val = prompt("Edit Schedule:", d.schedules[id].text);
-            if(type==='todo') val = prompt("Edit Task:", d.todos[id]);
-            if(type==='thought') { const t=d.thoughts.find(x=>x.id===id); val=prompt("Edit Thought:", t.text); }
-            
-            if(val) {
-                if(type==='sche') d.schedules[id].text = val;
-                if(type==='todo') d.todos[id] = val;
-                if(type==='thought') d.thoughts.find(x=>x.id===id).text = val;
-                saveDayData(selKey, d);
-            }
-        };
-
-        window.finTask = i => { const d=getDayData(selKey); d.dones.unshift(d.todos.splice(i,1)[0]); saveDayData(selKey,d); };
-        window.undoTask = i => { const d=getDayData(selKey); d.todos.push(d.dones.splice(i,1)[0]); saveDayData(selKey,d); };
-
-        // --- Widgets ---
-        window.renderWidgets = () => {
-            // Countdown
-            const cds = config.countdowns || [];
-            const elT=$('cd-title'), elD=$('cd-days'), elSub=$('cd-date-text');
-            if(!cds.length) { elT.innerText='NO EVENT'; elD.innerText='-'; elSub.innerText='Setup in settings'; } 
-            else {
-                if(cdIdx >= cds.length) cdIdx=0;
-                const cd = cds[cdIdx];
-                const diff = Math.ceil((new Date(cd.date)-new Date().setHours(0,0,0,0))/(86400000));
-                elT.innerText = cd.name;
-                elD.innerHTML = diff>0 ? diff : (diff===0?'NOW':Math.abs(diff));
-                elD.innerHTML += '<span>DAYS</span>';
-                elSub.innerText = `${cd.date} (${cdIdx+1}/${cds.length})`;
-            }
-
-            // NEW: Render Habits
-            const habits = config.habits || [];
-            $('overview-habits').innerHTML = habits.map(h => `<div class="habit-item"><span class="habit-icon">✦</span> ${h}</div>`).join('') || '<div class="empty-state">Add in settings</div>';
-
-
-            // Overview Lists (Improved 4: Pending shows ALL overdue tasks)
-            let tasks=[], sches=[];
-            const today = new Date(); today.setHours(0,0,0,0);
-            
-            Object.keys(data).forEach(k => {
-                const [y,m,d] = k.split('-').map(Number);
-                const dt = new Date(y,m-1,d);
-                const dd = data[k];
-                const ds = dt.toLocaleDateString('en-US', {month:'short', day:'numeric'});
-                
-                // Tasks: Collect ALL pending tasks (past and future)
-                if(dd.todos) dd.todos.forEach(t => tasks.push({t, k, dt, ds, isOverdue: dt < today}));
-                
-                // Schedules: Only collect future schedules
-                if(dt >= today && dd.schedules) dd.schedules.forEach(s => sches.push({s, k, dt, ds}));
-            });
-            
-            tasks.sort((a,b)=>a.dt-b.dt); // Sort by date
-            sches.sort((a,b)=>a.dt-b.dt);
-
-            const render = (c, arr, type) => {
-                $(c).innerHTML = arr.slice(0,10).map(i => { // Limit to 10
-                    let txt = i.t;
-                    let dateClass = i.isOverdue ? 'tag-date overdue' : 'tag-date'; // Highlight overdue
-                    if(type==='sche') {
-                         txt = `<span style="font-family:monospace;color:var(--accent)">${i.s.time||'--:--'}</span> ${i.s.text}`;
-                         dateClass = 'tag-date';
-                    }
-                    return `<div class="overview-item" onclick="openDay('${i.k}', new Date('${i.dt}'))"><div style="flex:1">${txt}</div><div class="${dateClass}">${i.ds}</div></div>`;
-                }).join('') || '<div class="empty-state">Nothing pending</div>';
-            };
-            render('overview-tasks', tasks, 'task');
-            render('overview-schedule', sches, 'sche');
-        };
-        
-        window.swapCd = d => { cdIdx+=d; renderWidgets(); };
-
-        // --- Settings ---
-        // FIXED: Exposed functions to window object
-        window.openSettings = () => { 
-            $('modal-settings').classList.add('active'); 
-            $('set-sync-id').value = syncId; $('set-firebase-cfg').value = localStorage.getItem('cal_fb_raw')||'';
-            renderSettingsLists();
-        };
-        window.closeModal = id => { $(id).classList.remove('active'); };
-        window.saveSettings = () => {
-            const id = $('set-sync-id').value.trim();
-            const raw = $('set-firebase-cfg').value.trim();
-            if(id && raw) { localStorage.setItem('cal_sync_id', id); localStorage.setItem('cal_fb_raw', raw); window.syncId=id; connectCloud(raw); }
-        };
-
-        window.setTheme = t => { config.theme = t; applyTheme(); persistConfig(); };
-        window.applyTheme = () => {
-            document.body.className = `theme-${config.theme}`;
-            if(config.bg) { document.body.style.backgroundImage=`url('${config.bg}')`; document.body.classList.add('has-custom-bg'); }
-            else { document.body.style.backgroundImage=''; document.body.classList.remove('has-custom-bg'); }
-        };
-        
-        window.uploadBg = e => {
-            const r = new FileReader(); r.onload=ev=>{ config.bg=ev.target.result; applyTheme(); persistConfig(); };
-            if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);
-        };
-        window.clearBg = () => { config.bg=''; applyTheme(); persistConfig(); };
-
-        // Settings Lists (CD & Habits)
-        window.renderSettingsLists = () => {
-            $('set-cd-list').innerHTML = (config.countdowns||[]).map((c,i) => `<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');
-            // New: Render Habit list in settings
-             $('set-habit-list').innerHTML = (config.habits||[]).map((h,i) => `<div class="list-item"><span style="font-size:0.9rem">✦ ${h}</span><button class="btn-icon btn-delete" onclick="delHabit(${i})">×</button></div>`).join('');
-        };
-        window.addCd = () => {
-            const n=$('new-cd-name').value, d=$('new-cd-date').value;
-            if(n&&d) { config.countdowns.push({name:n, date:d}); persistConfig(); $('new-cd-name').value=''; }
-        };
-        window.delCd = i => { config.countdowns.splice(i,1); persistConfig(); };
-
-        // New: Add/Del Habits
-        window.addHabit = () => {
-            const t=$('new-habit-text').value.trim();
-            if(t) { config.habits = config.habits || []; config.habits.push(t); persistConfig(); $('new-habit-text').value=''; }
-        };
-        window.delHabit = i => { config.habits.splice(i,1); persistConfig(); };
-
-
-        // Clock & Quote (Improved 3: Manual Navigation)
-        function updateClock() {
-            const n = new Date();
-            $('clock-time').innerText = n.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
-            $('clock-sec').innerText = String(n.getSeconds()).padStart(2,'0');
-            $('clock-date').innerText = n.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
-        }
-        window.renderQuote = () => { 
-            if(quoteIdx < 0) quoteIdx = quotes.length - 1;
-            if(quoteIdx >= quotes.length) quoteIdx = 0;
-            $('quote-area').innerHTML = `"${quotes[quoteIdx]}" <span>— Erich Fromm</span>`; 
-        };
-        window.changeQuote = (dir) => { quoteIdx += dir; renderQuote(); };
-
-        init();
+        // --- Other Logic (Unchanged) ---
+        window.openDay=(k,d)=>{selKey=k;$('modal-day-num').innerText=d.getDate();$('modal-day-meta').innerText=d.toLocaleDateString('en-US',{month:'short',year:'numeric',weekday:'long'});renderDayModal(k);$('modal-day').classList.add('active');};
+        function renderDayModal(k){const d=getDayData(k);document.querySelectorAll('.mood-emoji').forEach(e=>{e.className=`mood-emoji ${e.dataset.m===d.mood?'active':''}`;});const sList=d.schedules.sort((a,b)=>(a.time||'').localeCompare(b.time||''));$('list-sche').innerHTML=sList.map((s,i)=>`<div class="list-item"><div class="item-text"><span class="schedule-time">${s.time||'TBD'}</span> ${s.text}</div><div class="item-actions"><button class="btn-icon" onclick="editItem('sche',${i})">✎</button><button class="btn-icon btn-delete" onclick="delItem('sche',${i})">×</button></div></div>`).join('')||'<div class="empty-state">No schedule</div>';$('list-todo').innerHTML=d.todos.map((t,i)=>`<div class="list-item"><div class="item-text">◻ ${t}</div><div class="item-actions"><button class="btn-icon" onclick="finTask(${i})">✓</button><button class="btn-icon" onclick="editItem('todo',${i})">✎</button><button class="btn-icon btn-delete" onclick="delItem('todo',${i})">×</button></div></div>`).join('')||'<div class="empty-state">No pending tasks</div>';$('list-done').innerHTML=d.dones.map((t,i)=>`<div class="list-item done-item"><div class="item-text">◼ ${t}</div><div class="item-actions"><button class="btn-icon" onclick="undoTask(${i})">↩</button><button class="btn-icon btn-delete" onclick="delItem('done',${i})">×</button></div></div>`).join('');$('list-thought').innerHTML=d.thoughts.map((t,i)=>`<div class="list-item thought-card"><div class="thought-header"><span>${t.time}</span><div class="item-actions"><button class="btn-icon" onclick="editItem('thought',${t.id})">✎</button><button class="btn-icon btn-delete" onclick="delItem('thought',${t.id})">×</button></div></div><div class="thought-body">${t.text}</div></div>`).join('')||'<div class="empty-state">Empty mind</div>';}
+        window.setMood=m=>{const d=getDayData(selKey);d.mood=(d.mood===m)?null:m;saveDayData(selKey,d);};window.addSche=()=>{const t=$('in-sche-time').value,x=$('in-sche-text').value.trim();if(x){const d=getDayData(selKey);d.schedules.push({time:t,text:x});saveDayData(selKey,d);$('in-sche-text').value='';}};window.addTodo=()=>{const x=$('in-todo').value.trim();if(x){const d=getDayData(selKey);d.todos.push(x);saveDayData(selKey,d);$('in-todo').value='';}};window.addThought=()=>{const x=$('in-thought').value.trim();if(x){const d=getDayData(selKey);const now=new Date();const timeStr=now.toLocaleString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});d.thoughts.push({id:Date.now(),text:x,time:timeStr});saveDayData(selKey,d);$('in-thought').value='';}};window.delItem=(type,id)=>{if(!confirm("Delete?"))return;const d=getDayData(selKey);if(type==='sche')d.schedules.splice(id,1);if(type==='todo')d.todos.splice(id,1);if(type==='done')d.dones.splice(id,1);if(type==='thought')d.thoughts=d.thoughts.filter(t=>t.id!==id);saveDayData(selKey,d);};window.editItem=(type,id)=>{const d=getDayData(selKey);let val='';if(type==='sche')val=prompt("Edit Schedule:",d.schedules[id].text);if(type==='todo')val=prompt("Edit Task:",d.todos[id]);if(type==='thought'){const t=d.thoughts.find(x=>x.id===id);val=prompt("Edit Thought:",t.text);}if(val){if(type==='sche')d.schedules[id].text=val;if(type==='todo')d.todos[id]=val;if(type==='thought')d.thoughts.find(x=>x.id===id).text=val;saveDayData(selKey,d);}};window.finTask=i=>{const d=getDayData(selKey);d.dones.unshift(d.todos.splice(i,1)[0]);saveDayData(selKey,d);};window.undoTask=i=>{const d=getDayData(selKey);d.todos.push(d.dones.splice(i,1)[0]);saveDayData(selKey,d);};
+        window.openSettings=()=>{ $('modal-settings').classList.add('active'); $('set-sync-id').value=syncId; $('set-firebase-cfg').value=localStorage.getItem('cal_fb_raw')||''; renderSettingsLists();};window.closeModal=id=>{$(id).classList.remove('active');};window.saveSettings=()=>{const id=$('set-sync-id').value.trim();const raw=$('set-firebase-cfg').value.trim();if(id&&raw){localStorage.setItem('cal_sync_id',id);localStorage.setItem('cal_fb_raw',raw);window.syncId=id;connectCloud(raw);}};window.setTheme=t=>{config.theme=t;applyTheme();persistConfig();};window.applyTheme=()=>{document.body.className=`theme-${config.theme}`;if(config.bg){document.body.style.backgroundImage=`url('${config.bg}')`;document.body.classList.add('has-custom-bg');}else{document.body.style.backgroundImage='';document.body.classList.remove('has-custom-bg');}};window.uploadBg=e=>{const r=new FileReader();r.onload=ev=>{config.bg=ev.target.result;applyTheme();persistConfig();};if(e.target.files[0])r.readAsDataURL(e.target.files[0]);};window.clearBg=()=>{config.bg='';applyTheme();persistConfig();};window.renderSettingsLists=()=>{$('set-cd-list').innerHTML=(config.countdowns||[]).map((c,i)=>`<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');$('set-habit-list').innerHTML=(config.habits||[]).map((h,i)=>`<div class="list-item"><span style="font-size:0.9rem">✦ ${h}</span><button class="btn-icon btn-delete" onclick="delHabit(${i})">×</button></div>`).join('');};window.addCd=()=>{const n=$('new-cd-name').value,d=$('new-cd-date').value;if(n&&d){config.countdowns.push({name:n,date:d});persistConfig();$('new-cd-name').value='';}};window.delCd=i=>{config.countdowns.splice(i,1);persistConfig();};window.addHabit=()=>{const t=$('new-habit-text').value.trim();if(t){config.habits=config.habits||[];config.habits.push(t);persistConfig();$('new-habit-text').value='';}};window.delHabit=i=>{config.habits.splice(i,1);persistConfig();};
+        function updateClock(){const n=new Date();$('clock-time').innerText=n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});$('clock-sec').innerText=String(n.getSeconds()).padStart(2,'0');$('clock-date').innerText=n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}window.renderQuote=()=>{if(quoteIdx<0)quoteIdx=quotes.length-1;if(quoteIdx>=quotes.length)quoteIdx=0;$('quote-area').innerText=`"${quotes[quoteIdx]}" — Erich Fromm`;};window.changeQuote=(dir)=>{quoteIdx+=dir;renderQuote();};
+        async function init(){applyTheme();updateClock();setInterval(updateClock,1000);renderQuote();renderCal();renderWidgets();const fbRaw=localStorage.getItem('cal_fb_raw');if(fbRaw&&syncId)connectCloud(fbRaw);document.getElementById('modal-day').addEventListener('click',e=>{if(e.target.id==='modal-day')closeModal('modal-day');});document.getElementById('modal-settings').addEventListener('click',e=>{if(e.target.id==='modal-settings')closeModal('modal-settings');});$('in-todo').onkeypress=e=>e.key==='Enter'&&addTodo();$('in-sche-text').onkeypress=e=>e.key==='Enter'&&addSche();$('in-thought').onkeypress=e=>e.key==='Enter'&&!e.shiftKey&&(e.preventDefault(),addThought());}init();
     </script>
 </body>
 </html>
