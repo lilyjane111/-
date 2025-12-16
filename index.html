@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>My Time</title>
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=4">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=4">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=5">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=5">
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -436,9 +436,11 @@
             const fbRaw = localStorage.getItem('cal_fb_raw');
             if(fbRaw && syncId) connectCloud(fbRaw);
 
+            // Listeners
             document.getElementById('modal-day').addEventListener('click', e => { if(e.target.id === 'modal-day') closeModal('modal-day'); });
             document.getElementById('modal-settings').addEventListener('click', e => { if(e.target.id === 'modal-settings') closeModal('modal-settings'); });
             
+            // Enter key listeners (Improved 1)
             $('in-todo').onkeypress = e => e.key==='Enter' && addTodo();
             $('in-sche-text').onkeypress = e => e.key==='Enter' && addSche();
             $('in-thought').onkeypress = e => e.key==='Enter' && !e.shiftKey && (e.preventDefault(), addThought());
@@ -465,4 +467,301 @@
         function connectCloud(raw) {
             status(false, 'Connecting...');
             try {
-                let
+                let clean = raw.replace(/const\s+\w+\s*=\s*/, '').replace(/;$/, '');
+                const obj = new Function('return ' + clean)();
+                const app = initializeApp(obj);
+                db = getFirestore(app);
+                
+                if(unsubscribe) unsubscribe();
+                unsubscribe = onSnapshot(doc(db, 'calendars', syncId), snap => {
+                    if(snap.exists()) {
+                        data = JSON.parse(snap.data().d);
+                        localStorage.setItem('cal_data_v5', JSON.stringify(data));
+                        renderCal(); renderWidgets();
+                        if(selKey) renderDayModal(selKey);
+                        status(true, 'Synced');
+                    } else {
+                        persist(); // Init cloud
+                        status(true, 'Initialized');
+                    }
+                }, err => { console.error(err); status(false, 'Error'); });
+            } catch(e) { console.error(e); status(false, 'Config Error'); }
+        }
+        
+        function status(online, msg) {
+            const dot = $('sync-dot');
+            const txt = $('sync-status-display');
+            if(dot) dot.className = `sync-dot ${online?'online':''}`;
+            if(txt) {
+                txt.innerText = msg || (online ? 'Online' : 'Offline');
+                txt.style.color = online ? 'var(--success)' : 'var(--danger)';
+            }
+        }
+
+        // --- Calendar ---
+        window.renderCal = () => {
+            const y = curDate.getFullYear(), m = curDate.getMonth();
+            $('cal-title').innerText = new Date(y,m).toLocaleDateString('en-US', {month:'long', year:'numeric'});
+            const grid = $('cal-grid'); grid.innerHTML = '';
+            
+            ['SUN','MON','TUE','WED','THU','FRI','SAT'].forEach(d => grid.innerHTML+=`<div class="day-label">${d}</div>`);
+            for(let i=0; i<new Date(y,m,1).getDay(); i++) grid.appendChild(document.createElement('div'));
+            
+            const todayStr = new Date().toDateString();
+            const days = new Date(y,m+1,0).getDate();
+
+            for(let i=1; i<=days; i++) {
+                const date = new Date(y,m,i);
+                const key = `${y}-${m+1}-${i}`;
+                const d = data[key] || {};
+                const el = document.createElement('div');
+                el.className = `date-cell ${date.toDateString() === todayStr ? 'today' : ''}`;
+                
+                let html = `<span>${i}</span>`;
+                if(d.mood) html += `<div class="mood-corner" style="background:var(--mood-${d.mood})"></div>`;
+                
+                const tc = (d.todos?.length||0) + (d.schedules?.length||0);
+                const dc = d.dones?.length||0;
+                if(tc+dc > 0) html += `<div class="dots-container">${tc?`<div class="dot dot-task"></div>`:''}${dc?`<div class="dot dot-done"></div>`:''}</div>`;
+                
+                el.innerHTML = html;
+                el.onclick = () => openDay(key, date);
+                grid.appendChild(el);
+            }
+        };
+        window.moveMonth = d => { curDate.setMonth(curDate.getMonth()+d); renderCal(); };
+        window.goToday = () => { curDate = new Date(); renderCal(); };
+
+        // --- Day Modal Logic ---
+        window.openDay = (key, date) => {
+            selKey = key;
+            $('modal-day-num').innerText = date.getDate();
+            $('modal-day-meta').innerText = date.toLocaleDateString('en-US', {month:'short', year:'numeric', weekday:'long'});
+            renderDayModal(key);
+            $('modal-day').classList.add('active');
+        };
+
+        function renderDayModal(key) {
+            const d = getDayData(key);
+            
+            // Mood
+            document.querySelectorAll('.mood-emoji').forEach(e => {
+                e.className = `mood-emoji ${e.dataset.m === d.mood ? 'active' : ''}`;
+            });
+
+            // Schedule
+            const sList = d.schedules.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+            $('list-sche').innerHTML = sList.map((s, i) => `
+                <div class="list-item">
+                    <div class="item-text"><span class="schedule-time">${s.time||'TBD'}</span> ${s.text}</div>
+                    <div class="item-actions">
+                        <button class="btn-icon" onclick="editItem('sche', ${i})">✎</button>
+                        <button class="btn-icon btn-delete" onclick="delItem('sche', ${i})">×</button>
+                    </div>
+                </div>`).join('') || '<div class="empty-state">No schedule</div>';
+
+            // Todo
+            $('list-todo').innerHTML = d.todos.map((t, i) => `
+                <div class="list-item">
+                    <div class="item-text">◻ ${t}</div>
+                    <div class="item-actions">
+                        <button class="btn-icon" onclick="finTask(${i})">✓</button>
+                        <button class="btn-icon" onclick="editItem('todo', ${i})">✎</button>
+                        <button class="btn-icon btn-delete" onclick="delItem('todo', ${i})">×</button>
+                    </div>
+                </div>`).join('') || '<div class="empty-state">No pending tasks</div>';
+
+            // Done
+            $('list-done').innerHTML = d.dones.map((t, i) => `
+                <div class="list-item done-item">
+                    <div class="item-text">◼ ${t}</div>
+                    <div class="item-actions">
+                        <button class="btn-icon" onclick="undoTask(${i})">↩</button>
+                        <button class="btn-icon btn-delete" onclick="delItem('done', ${i})">×</button>
+                    </div>
+                </div>`).join('');
+
+            // Thoughts (Improved 2: Full Date display)
+            $('list-thought').innerHTML = d.thoughts.map((t, i) => `
+                <div class="list-item thought-card">
+                    <div class="thought-header">
+                        <span>${t.time}</span>
+                        <div class="item-actions">
+                            <button class="btn-icon" onclick="editItem('thought', ${t.id})">✎</button>
+                            <button class="btn-icon btn-delete" onclick="delItem('thought', ${t.id})">×</button>
+                        </div>
+                    </div>
+                    <div class="thought-body">${t.text}</div>
+                </div>`).join('') || '<div class="empty-state">Empty mind</div>';
+        }
+
+        // CRUD
+        window.setMood = m => { const d=getDayData(selKey); d.mood=(d.mood===m)?null:m; saveDayData(selKey,d); };
+        
+        window.addSche = () => { const t=$('in-sche-time').value, x=$('in-sche-text').value.trim(); if(x){ const d=getDayData(selKey); d.schedules.push({time:t,text:x}); saveDayData(selKey,d); $('in-sche-text').value=''; } };
+        window.addTodo = () => { const x=$('in-todo').value.trim(); if(x){ const d=getDayData(selKey); d.todos.push(x); saveDayData(selKey,d); $('in-todo').value=''; } };
+        
+        // Improved 2: Store full date string for thoughts
+        window.addThought = () => { 
+            const x=$('in-thought').value.trim(); 
+            if(x){ 
+                const d=getDayData(selKey); 
+                // Format: YYYY/MM/DD HH:mm
+                const now = new Date();
+                const timeStr = now.toLocaleString('en-US', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false});
+                d.thoughts.push({id:Date.now(), text:x, time:timeStr}); 
+                saveDayData(selKey,d); $('in-thought').value=''; 
+            } 
+        };
+
+        window.delItem = (type, id) => {
+            if(!confirm("Delete?")) return;
+            const d = getDayData(selKey);
+            if(type==='sche') d.schedules.splice(id,1);
+            if(type==='todo') d.todos.splice(id,1);
+            if(type==='done') d.dones.splice(id,1);
+            if(type==='thought') d.thoughts = d.thoughts.filter(t=>t.id!==id);
+            saveDayData(selKey, d);
+        };
+
+        window.editItem = (type, id) => {
+            const d = getDayData(selKey);
+            let val = '';
+            if(type==='sche') val = prompt("Edit Schedule:", d.schedules[id].text);
+            if(type==='todo') val = prompt("Edit Task:", d.todos[id]);
+            if(type==='thought') { const t=d.thoughts.find(x=>x.id===id); val=prompt("Edit Thought:", t.text); }
+            
+            if(val) {
+                if(type==='sche') d.schedules[id].text = val;
+                if(type==='todo') d.todos[id] = val;
+                if(type==='thought') d.thoughts.find(x=>x.id===id).text = val;
+                saveDayData(selKey, d);
+            }
+        };
+
+        window.finTask = i => { const d=getDayData(selKey); d.dones.unshift(d.todos.splice(i,1)[0]); saveDayData(selKey,d); };
+        window.undoTask = i => { const d=getDayData(selKey); d.todos.push(d.dones.splice(i,1)[0]); saveDayData(selKey,d); };
+
+        // --- Widgets ---
+        window.renderWidgets = () => {
+            // Countdown
+            const cds = config.countdowns || [];
+            const elT=$('cd-title'), elD=$('cd-days'), elSub=$('cd-date-text');
+            if(!cds.length) { elT.innerText='NO EVENT'; elD.innerText='-'; elSub.innerText='Setup in settings'; } 
+            else {
+                if(cdIdx >= cds.length) cdIdx=0;
+                const cd = cds[cdIdx];
+                const diff = Math.ceil((new Date(cd.date)-new Date().setHours(0,0,0,0))/(86400000));
+                elT.innerText = cd.name;
+                elD.innerHTML = diff>0 ? diff : (diff===0?'NOW':Math.abs(diff));
+                elD.innerHTML += '<span>DAYS</span>';
+                elSub.innerText = `${cd.date} (${cdIdx+1}/${cds.length})`;
+            }
+
+            // NEW: Render Habits
+            const habits = config.habits || [];
+            $('overview-habits').innerHTML = habits.map(h => `<div class="habit-item"><span class="habit-icon">✦</span> ${h}</div>`).join('') || '<div class="empty-state">Add in settings</div>';
+
+
+            // Overview Lists (Improved 4: Pending shows ALL overdue tasks)
+            let tasks=[], sches=[];
+            const today = new Date(); today.setHours(0,0,0,0);
+            
+            Object.keys(data).forEach(k => {
+                const [y,m,d] = k.split('-').map(Number);
+                const dt = new Date(y,m-1,d);
+                const dd = data[k];
+                const ds = dt.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+                
+                // Tasks: Collect ALL pending tasks (past and future)
+                if(dd.todos) dd.todos.forEach(t => tasks.push({t, k, dt, ds, isOverdue: dt < today}));
+                
+                // Schedules: Only collect future schedules
+                if(dt >= today && dd.schedules) dd.schedules.forEach(s => sches.push({s, k, dt, ds}));
+            });
+            
+            tasks.sort((a,b)=>a.dt-b.dt); // Sort by date
+            sches.sort((a,b)=>a.dt-b.dt);
+
+            const render = (c, arr, type) => {
+                $(c).innerHTML = arr.slice(0,10).map(i => { // Limit to 10
+                    let txt = i.t;
+                    let dateClass = i.isOverdue ? 'tag-date overdue' : 'tag-date'; // Highlight overdue
+                    if(type==='sche') {
+                         txt = `<span style="font-family:monospace;color:var(--accent)">${i.s.time||'--:--'}</span> ${i.s.text}`;
+                         dateClass = 'tag-date';
+                    }
+                    return `<div class="overview-item" onclick="openDay('${i.k}', new Date('${i.dt}'))"><div style="flex:1">${txt}</div><div class="${dateClass}">${i.ds}</div></div>`;
+                }).join('') || '<div class="empty-state">Nothing pending</div>';
+            };
+            render('overview-tasks', tasks, 'task');
+            render('overview-schedule', sches, 'sche');
+        };
+        
+        window.swapCd = d => { cdIdx+=d; renderWidgets(); };
+
+        // --- Settings ---
+        // FIXED: Exposed functions to window object
+        window.openSettings = () => { 
+            $('modal-settings').classList.add('active'); 
+            $('set-sync-id').value = syncId; $('set-firebase-cfg').value = localStorage.getItem('cal_fb_raw')||'';
+            renderSettingsLists();
+        };
+        window.closeModal = id => { $(id).classList.remove('active'); };
+        window.saveSettings = () => {
+            const id = $('set-sync-id').value.trim();
+            const raw = $('set-firebase-cfg').value.trim();
+            if(id && raw) { localStorage.setItem('cal_sync_id', id); localStorage.setItem('cal_fb_raw', raw); window.syncId=id; connectCloud(raw); }
+        };
+
+        window.setTheme = t => { config.theme = t; applyTheme(); persistConfig(); };
+        window.applyTheme = () => {
+            document.body.className = `theme-${config.theme}`;
+            if(config.bg) { document.body.style.backgroundImage=`url('${config.bg}')`; document.body.classList.add('has-custom-bg'); }
+            else { document.body.style.backgroundImage=''; document.body.classList.remove('has-custom-bg'); }
+        };
+        
+        window.uploadBg = e => {
+            const r = new FileReader(); r.onload=ev=>{ config.bg=ev.target.result; applyTheme(); persistConfig(); };
+            if(e.target.files[0]) r.readAsDataURL(e.target.files[0]);
+        };
+        window.clearBg = () => { config.bg=''; applyTheme(); persistConfig(); };
+
+        // Settings Lists (CD & Habits)
+        window.renderSettingsLists = () => {
+            $('set-cd-list').innerHTML = (config.countdowns||[]).map((c,i) => `<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');
+            // New: Render Habit list in settings
+             $('set-habit-list').innerHTML = (config.habits||[]).map((h,i) => `<div class="list-item"><span style="font-size:0.9rem">✦ ${h}</span><button class="btn-icon btn-delete" onclick="delHabit(${i})">×</button></div>`).join('');
+        };
+        window.addCd = () => {
+            const n=$('new-cd-name').value, d=$('new-cd-date').value;
+            if(n&&d) { config.countdowns.push({name:n, date:d}); persistConfig(); $('new-cd-name').value=''; }
+        };
+        window.delCd = i => { config.countdowns.splice(i,1); persistConfig(); };
+
+        // New: Add/Del Habits
+        window.addHabit = () => {
+            const t=$('new-habit-text').value.trim();
+            if(t) { config.habits = config.habits || []; config.habits.push(t); persistConfig(); $('new-habit-text').value=''; }
+        };
+        window.delHabit = i => { config.habits.splice(i,1); persistConfig(); };
+
+
+        // Clock & Quote (Improved 3: Manual Navigation)
+        function updateClock() {
+            const n = new Date();
+            $('clock-time').innerText = n.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+            $('clock-sec').innerText = String(n.getSeconds()).padStart(2,'0');
+            $('clock-date').innerText = n.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+        }
+        window.renderQuote = () => { 
+            if(quoteIdx < 0) quoteIdx = quotes.length - 1;
+            if(quoteIdx >= quotes.length) quoteIdx = 0;
+            $('quote-area').innerHTML = `"${quotes[quoteIdx]}" <span>— Erich Fromm</span>`; 
+        };
+        window.changeQuote = (dir) => { quoteIdx += dir; renderQuote(); };
+
+        init();
+    </script>
+</body>
+</html>
