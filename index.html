@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>My Time</title>
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=10">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=10">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=11">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=11">
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -85,7 +85,6 @@
         .date-cell span { font-size: 0.85rem; font-weight: 500; line-height: 1; }
         .dots-container { display: flex; gap: 2px; margin-top: 2px; } .dot { width: 3px; height: 3px; border-radius: 50%; } .dot-task { background: var(--danger); } .dot-done { background: var(--success); }
         .mood-corner { position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; }
-        /* NEW: Period Highlight Style */
         .date-cell.period { background: rgba(255, 118, 117, 0.25) !important; border: 1px solid rgba(255, 118, 117, 0.3); color: var(--danger); }
 
         /* --- Widgets & Tabs --- */
@@ -113,7 +112,7 @@
         .empty-state { text-align: center; color: var(--text-sub); font-style: italic; opacity: 0.5; margin-top: 15px; font-size: 0.85rem; }
         .habit-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 0.9rem; border-bottom: 1px solid rgba(0,0,0,0.03); }
         .habit-icon { color: var(--accent); opacity: 0.6; font-size: 0.8rem; }
-        .shop-price { font-family: monospace; font-weight: bold; color: var(--accent); background: rgba(0,0,0,0.04); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;}
+        .shop-price { font-family: monospace; font-weight: bold; color: var(--accent); background: rgba(0,0,0,0.04); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
 
         /* --- Footer Quote --- */
         .footer-quote-container { padding: 15px 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 15px; }
@@ -162,8 +161,6 @@
         ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
         .edit-input { flex: 1; border: 1px solid var(--accent); background: rgba(255,255,255,0.8); padding: 6px 10px; border-radius: 8px; font-family: inherit; font-size: 0.9rem; color: var(--text-main); margin-right: 8px; }
         .edit-actions { display: flex; gap: 4px; } .btn-save { color: var(--success); } .btn-cancel { color: var(--danger); }
-
-        /* NEW: Period Toggle Button Style */
         .period-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--glass-border); background: var(--glass); cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; transition: 0.2s; color: var(--text-sub); }
         .period-btn.active { background: var(--danger); color: white; border-color: var(--danger); }
     </style>
@@ -184,7 +181,7 @@
             <div class="glass-card overview-box main-list">
                 <div class="tab-header">
                     <button class="tab-btn active" onclick="switchTab('tasks')" id="tab-btn-tasks">📋 Tasks</button>
-                    <button class="tab-btn" onclick="switchTab('shopping')" id="tab-btn-shopping">🛍️ Wishlist</button>
+                    <button class="tab-btn" onclick="switchTab('shopping')" id="tab-btn-shopping">🌟 Wishes</button>
                 </div>
                 <div class="tab-content active" id="tab-content-tasks">
                     <div class="list-scroll" id="overview-tasks"></div>
@@ -256,7 +253,7 @@
                 <div class="setting-block"><h3>☁️ Cloud Sync <span id="sync-status-display" style="font-size:0.8rem; float:right; opacity:0.7"></span></h3><input type="text" class="std-input" id="set-sync-id" placeholder="Sync ID"><textarea class="config-area" id="set-firebase-cfg" placeholder="Firebase Config Object"></textarea><button class="full-btn" onclick="saveSettings()">Connect & Save</button></div>
                 <div class="setting-block"><h3>🎨 Theme</h3><div class="theme-grid"><div class="theme-swatch" onclick="setTheme('white')">White</div><div class="theme-swatch" onclick="setTheme('dark')">Dark</div><div class="theme-swatch" onclick="setTheme('monet')">Monet</div><div class="theme-swatch" onclick="setTheme('sakura')">Sakura</div><div class="theme-swatch" onclick="setTheme('nordic')">Nordic</div><div class="theme-swatch" onclick="setTheme('cyber')">Cyber</div><div class="theme-swatch" onclick="setTheme('retro')">Retro</div></div></div>
                 <div class="setting-block"><h3>✨ Habits</h3><div id="set-habit-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-habit-text" placeholder="New habit..."><button class="action-btn" onclick="addHabit()">+</button></div></div>
-                <div class="setting-block"><h3>🛍️ Shopping Wishlist</h3><div id="set-shop-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-shop-name" placeholder="Item name" style="flex:2"><input type="text" class="std-input" id="new-shop-price" placeholder="Price (opt.)" style="flex:1"><button class="action-btn" onclick="addShopItem()">+</button></div></div>
+                <div class="setting-block"><h3>🌟 Wishlist & Goals</h3><div id="set-shop-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-shop-name" placeholder="Goal/Wish name" style="flex:2"><input type="text" class="std-input" id="new-shop-price" placeholder="Notes/Cost (opt.)" style="flex:1"><button class="action-btn" onclick="addShopItem()">+</button></div></div>
                 <div class="setting-block"><h3>🎉 Countdowns</h3><div id="set-cd-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-cd-name" placeholder="Name"><input type="date" class="std-input" id="new-cd-date"><button class="action-btn" onclick="addCd()">+</button></div></div>
                 <div class="setting-block"><h3>🖼️ Background</h3><input type="file" class="std-input" accept="image/*" onchange="uploadBg(event)"><button class="full-btn" style="background:var(--danger); margin-top:5px" onclick="clearBg()">Clear BG</button></div>
             </div>
@@ -270,14 +267,12 @@
         let db=null, syncId=localStorage.getItem('cal_sync_id')||'', data=JSON.parse(localStorage.getItem('cal_data_v5')||'{}'), config=JSON.parse(localStorage.getItem('cal_conf_v5')||'{"theme":"white","countdowns":[],"habits":[],"shopping":[]}'), curDate=new Date(), selKey=null, cdIdx=0, quoteIdx=0, unsubscribe=null;
         let editingItem = { type: null, id: null }; let activeTab = 'tasks';
         const quotes=["Love is not a sentiment which can be easily indulged in by anyone regardless of the level of maturity reached by him.","Creativity requires the courage to let go of certainties.","The paradox of love is that two beings become one and yet remain two.","Man's main task in life is to give birth to himself.","To spare oneself from grief at all cost can be achieved only at the price of total detachment.","The ability to be puzzled is the premise of all creation.","Not he who has much is rich, but he who gives much."];
-        // Updated getDayData to include isPeriod
         const $=id=>document.getElementById(id); const getDayData=k=>({schedules:[],todos:[],dones:[],thoughts:[],mood:null,isPeriod:false,...data[k]}); const saveDayData=(k,d)=>{data[k]=d;persist();if(selKey===k)renderDayModal(k);renderCal();renderWidgets();};
         function persist(){localStorage.setItem('cal_data_v5',JSON.stringify(data));if(db&&syncId)setDoc(doc(db,'calendars',syncId),{d:JSON.stringify(data),t:Date.now()}).catch(e=>status(false,'Upload Failed'));}
         function persistConfig(){localStorage.setItem('cal_conf_v5',JSON.stringify(config));renderWidgets();renderSettingsLists();}
         function connectCloud(raw){status(false,'Connecting...');try{let clean=raw.replace(/const\s+\w+\s*=\s*/,'').replace(/;$/,'');const obj=new Function('return '+clean)();const app=initializeApp(obj);db=getFirestore(app);if(unsubscribe)unsubscribe();unsubscribe=onSnapshot(doc(db,'calendars',syncId),snap=>{if(snap.exists()){data=JSON.parse(snap.data().d);localStorage.setItem('cal_data_v5',JSON.stringify(data));renderCal();renderWidgets();if(selKey)renderDayModal(selKey);status(true,'Synced');}else{persist();status(true,'Initialized');}},err=>{console.error(err);status(false,'Error');});}catch(e){console.error(e);status(false,'Config Error');}}
         function status(o,m){const d=$('sync-dot'),t=$('sync-status-display');if(d)d.className=`sync-dot ${o?'online':''}`;if(t){t.innerText=m||(o?'Online':'Offline');t.style.color=o?'var(--success)':'var(--danger)';}}
 
-        // --- V6 Compact Calendar Render (Updated for Period) ---
         window.renderCal=()=>{
             const y=curDate.getFullYear(),m=curDate.getMonth(); $('cal-title').innerText=new Date(y,m).toLocaleDateString('en-US',{month:'short',year:'numeric'});
             const grid=$('cal-grid'); grid.innerHTML=''; ['S','M','T','W','T','F','S'].forEach(d=>grid.innerHTML+=`<div class="day-label">${d}</div>`);
@@ -285,7 +280,6 @@
             const todayStr=new Date().toDateString();
             for(let i=1;i<=new Date(y,m+1,0).getDate();i++){
                 const date=new Date(y,m,i), key=`${y}-${m+1}-${i}`, d=data[key]||{}, el=document.createElement('div');
-                // Add period class if active
                 el.className=`date-cell ${date.toDateString()===todayStr?'today':''} ${d.isPeriod?'period':''}`;
                 let html=`<span>${i}</span>`; if(d.mood)html+=`<div class="mood-corner" style="background:var(--mood-${d.mood})"></div>`;
                 const tc=(d.todos?.length||0)+(d.schedules?.length||0), dc=d.dones?.length||0;
@@ -295,7 +289,6 @@
         };
         window.moveMonth=d=>{curDate.setMonth(curDate.getMonth()+d);renderCal();}; window.goToday=()=>{curDate=new Date();renderCal();};
 
-        // --- V6.3 Widgets & Tab Logic ---
         window.switchTab=(tab)=>{
             activeTab=tab; $('tab-btn-tasks').className=tab==='tasks'?'tab-btn active':'tab-btn'; $('tab-btn-shopping').className=tab==='shopping'?'tab-btn active':'tab-btn';
             $('tab-content-tasks').className=tab==='tasks'?'tab-content active':'tab-content'; $('tab-content-shopping').className=tab==='shopping'?'tab-content active':'tab-content';
@@ -305,7 +298,18 @@
             const cds=config.countdowns||[], elT=$('cd-title'), elD=$('cd-days'), elSub=$('cd-date-text');
             if(!cds.length){elT.innerText='NO EVENT';elD.innerText='-';elSub.innerText='Setup in settings';}else{if(cdIdx>=cds.length)cdIdx=0;const cd=cds[cdIdx], diff=Math.ceil((new Date(cd.date)-new Date().setHours(0,0,0,0))/(86400000));elT.innerText=cd.name;elD.innerHTML=diff>0?diff:(diff===0?'NOW':Math.abs(diff));elD.innerHTML+='<span>DAYS</span>';elSub.innerText=`${cd.date} (${cdIdx+1}/${cds.length})`;}
             $('overview-habits').innerHTML=(config.habits||[]).map(h=>`<div class="habit-item"><span class="habit-icon">✦</span> ${h}</div>`).join('')||'<div class="empty-state">Add in settings</div>';
-            $('overview-shopping').innerHTML=(config.shopping||[]).map(s=>`<div class="overview-item" style="cursor:default"><div style="flex:1">🛍️ ${s.name}</div>${s.price?`<div class="shop-price">${s.price}</div>`:''}</div>`).join('')||'<div class="empty-state">Wishlist empty</div>';
+            
+            // V6.5 Wishlist Render with Edit Button
+            $('overview-shopping').innerHTML=(config.shopping||[]).map((s,i)=>{
+                if(editingItem.type==='wish' && editingItem.id===i){
+                    return `<div class="overview-item" style="background:var(--glass); cursor:default; flex-wrap:wrap; gap:5px;">
+                        <input type="text" id="edit-wish-name-${i}" class="edit-input" value="${s.name}" style="min-width:120px; flex:2;">
+                        <input type="text" id="edit-wish-note-${i}" class="edit-input" value="${s.price||''}" placeholder="Notes..." style="min-width:80px; flex:1;">
+                        <div class="edit-actions"><button class="btn-icon btn-save" onclick="saveEdit('wish',${i})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div>
+                    </div>`;
+                }
+                return `<div class="overview-item" style="cursor:default; align-items: center;"><div style="flex:1; display:flex; align-items:center; gap:5px;">🌟 ${s.name} ${s.price?`<span class="shop-price" style="margin:0">${s.price}</span>`:''}</div><div class="item-actions" style="margin-left:8px; opacity:0.5;"><button class="btn-icon" style="font-size:0.8rem" onclick="editItem('wish',${i})">✎</button></div></div>`;
+            }).join('')||'<div class="empty-state">No wishes yet</div>';
 
             let tasks=[], sches=[]; const today=new Date(); today.setHours(0,0,0,0);
             Object.keys(data).forEach(k=>{
@@ -319,11 +323,9 @@
         };
         window.swapCd=d=>{cdIdx+=d;renderWidgets();};
 
-        // --- Logic (In-Place Edit) ---
         window.openDay=(k,d)=>{selKey=k;$('modal-day-num').innerText=d.getDate();$('modal-day-meta').innerText=d.toLocaleDateString('en-US',{month:'short',year:'numeric',weekday:'long'});renderDayModal(k);$('modal-day').classList.add('active');};
         function renderDayModal(k){
             const d=getDayData(k);document.querySelectorAll('.mood-emoji').forEach(e=>{e.className=`mood-emoji ${e.dataset.m===d.mood?'active':''}`;});
-            // Update Period Button State
             $('period-toggle-btn').className = d.isPeriod ? 'period-btn active' : 'period-btn';
             const sList=d.schedules.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
             $('list-sche').innerHTML=sList.map((s,i)=>{if(editingItem.type==='sche' && editingItem.id===i) {return `<div class="list-item" style="background:var(--glass)"><input type="time" id="edit-time-${i}" value="${s.time}" style="margin-right:5px;border:1px solid var(--accent);border-radius:5px;padding:2px;"><input type="text" id="edit-text-${i}" class="edit-input" value="${s.text}" onkeydown="e=>e.key==='Enter'&&saveEdit('sche',${i})"><div class="edit-actions"><button class="btn-icon btn-save" onclick="saveEdit('sche',${i})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`;}return `<div class="list-item"><div class="item-text"><span class="schedule-time">${s.time||'TBD'}</span> ${s.text}</div><div class="item-actions"><button class="btn-icon" onclick="editItem('sche',${i})">✎</button><button class="btn-icon btn-delete" onclick="delItem('sche',${i})">×</button></div></div>`;}).join('')||'<div class="empty-state">No schedule</div>';
@@ -332,19 +334,27 @@
             $('list-thought').innerHTML=d.thoughts.map((t,i)=>{if(editingItem.type==='thought' && editingItem.id===t.id) {return `<div class="list-item thought-card" style="background:var(--glass)"><textarea id="edit-thought-${t.id}" class="edit-input" style="height:60px;resize:none">${t.text}</textarea><div class="edit-actions" style="align-self:flex-end;margin-top:5px;"><button class="btn-icon btn-save" onclick="saveEdit('thought',${t.id})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`;}return `<div class="list-item thought-card"><div class="thought-header"><span>${t.time}</span><div class="item-actions"><button class="btn-icon" onclick="editItem('thought',${t.id})">✎</button><button class="btn-icon btn-delete" onclick="delItem('thought',${t.id})">×</button></div></div><div class="thought-body">${t.text}</div></div>`;}).join('')||'<div class="empty-state">Empty mind</div>';
         }
 
-        // CRUD
         window.setMood=m=>{const d=getDayData(selKey);d.mood=(d.mood===m)?null:m;saveDayData(selKey,d);};
-        // NEW: Period Toggle Function
         window.togglePeriod=()=>{const d=getDayData(selKey);d.isPeriod=!d.isPeriod;saveDayData(selKey,d);};
         window.addSche=()=>{const t=$('in-sche-time').value,x=$('in-sche-text').value.trim();if(x){const d=getDayData(selKey);d.schedules.push({time:t,text:x});saveDayData(selKey,d);$('in-sche-text').value='';}};window.addTodo=()=>{const x=$('in-todo').value.trim();if(x){const d=getDayData(selKey);d.todos.push(x);saveDayData(selKey,d);$('in-todo').value='';}};window.addThought=()=>{const x=$('in-thought').value.trim();if(x){const d=getDayData(selKey);const now=new Date();const timeStr=now.toLocaleString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});d.thoughts.push({id:Date.now(),text:x,time:timeStr});saveDayData(selKey,d);$('in-thought').value='';}};window.delItem=(type,id)=>{if(!confirm("Delete?"))return;const d=getDayData(selKey);if(type==='sche')d.schedules.splice(id,1);if(type==='todo')d.todos.splice(id,1);if(type==='done')d.dones.splice(id,1);if(type==='thought')d.thoughts=d.thoughts.filter(t=>t.id!==id);saveDayData(selKey,d);};
-        window.editItem=(type,id)=>{editingItem={type,id};renderDayModal(selKey);};window.cancelEdit=()=>{editingItem={type:null,id:null};renderDayModal(selKey);};
-        window.saveEdit=(type,id)=>{const d=getDayData(selKey);if(type==='sche'){const t=$(`edit-time-${id}`).value, x=$(`edit-text-${id}`).value.trim();if(x)d.schedules[id]={time:t,text:x};}if(type==='todo'){const x=$(`edit-todo-${id}`).value.trim();if(x)d.todos[id]=x;}if(type==='thought'){const x=$(`edit-thought-${id}`).value.trim();if(x)d.thoughts.find(t=>t.id===id).text=x;}editingItem={type:null,id:null}; saveDayData(selKey,d);};
+        // V6.5 Edit Logic updated for Wishes
+        window.editItem=(type,id)=>{editingItem={type,id}; if(type==='wish') renderWidgets(); else renderDayModal(selKey);};
+        window.cancelEdit=()=>{const wasWish=editingItem.type==='wish'; editingItem={type:null,id:null}; if(wasWish) renderWidgets(); else renderDayModal(selKey);};
+        window.saveEdit=(type,id)=>{
+            const d=getDayData(selKey);
+            if(type==='sche'){const t=$(`edit-time-${id}`).value, x=$(`edit-text-${id}`).value.trim();if(x)d.schedules[id]={time:t,text:x};}
+            if(type==='todo'){const x=$(`edit-todo-${id}`).value.trim();if(x)d.todos[id]=x;}
+            if(type==='thought'){const x=$(`edit-thought-${id}`).value.trim();if(x)d.thoughts.find(t=>t.id===id).text=x;}
+            if(type==='wish'){const n=$(`edit-wish-name-${id}`).value.trim(), p=$(`edit-wish-note-${id}`).value.trim(); if(n)config.shopping[id]={name:n,price:p}; persistConfig();}
+            editingItem={type:null,id:null}; if(type!=='wish')saveDayData(selKey,d); else renderWidgets();
+        };
         window.finTask=i=>{const d=getDayData(selKey);d.dones.unshift(d.todos.splice(i,1)[0]);saveDayData(selKey,d);};window.undoTask=i=>{const d=getDayData(selKey);d.todos.push(d.dones.splice(i,1)[0]);saveDayData(selKey,d);};
-        window.openSettings=()=>{ $('modal-settings').classList.add('active'); $('set-sync-id').value=syncId; $('set-firebase-cfg').value=localStorage.getItem('cal_fb_raw')||''; renderSettingsLists();};window.closeModal=id=>{$(id).classList.remove('active');editingItem={type:null,id:null};};window.saveSettings=()=>{const id=$('set-sync-id').value.trim();const raw=$('set-firebase-cfg').value.trim();if(id&&raw){localStorage.setItem('cal_sync_id',id);localStorage.setItem('cal_fb_raw',raw);window.syncId=id;connectCloud(raw);}};window.setTheme=t=>{config.theme=t;applyTheme();persistConfig();};window.applyTheme=()=>{document.body.className=`theme-${config.theme}`;if(config.bg){document.body.style.backgroundImage=`url('${config.bg}')`;document.body.classList.add('has-custom-bg');}else{document.body.style.backgroundImage='';document.body.classList.remove('has-custom-bg');}};window.uploadBg=e=>{const r=new FileReader();r.onload=ev=>{config.bg=ev.target.result;applyTheme();persistConfig();};if(e.target.files[0])r.readAsDataURL(e.target.files[0]);};window.clearBg=()=>{config.bg='';applyTheme();persistConfig();};
+        window.openSettings=()=>{ $('modal-settings').classList.add('active'); $('set-sync-id').value=syncId; $('set-firebase-cfg').value=localStorage.getItem('cal_fb_raw')||''; renderSettingsLists();};window.closeModal=id=>{$(id).classList.remove('active');editingItem={type:null,id:null};renderWidgets();};window.saveSettings=()=>{const id=$('set-sync-id').value.trim();const raw=$('set-firebase-cfg').value.trim();if(id&&raw){localStorage.setItem('cal_sync_id',id);localStorage.setItem('cal_fb_raw',raw);window.syncId=id;connectCloud(raw);}};window.setTheme=t=>{config.theme=t;applyTheme();persistConfig();};window.applyTheme=()=>{document.body.className=`theme-${config.theme}`;if(config.bg){document.body.style.backgroundImage=`url('${config.bg}')`;document.body.classList.add('has-custom-bg');}else{document.body.style.backgroundImage='';document.body.classList.remove('has-custom-bg');}};window.uploadBg=e=>{const r=new FileReader();r.onload=ev=>{config.bg=ev.target.result;applyTheme();persistConfig();};if(e.target.files[0])r.readAsDataURL(e.target.files[0]);};window.clearBg=()=>{config.bg='';applyTheme();persistConfig();};
         window.renderSettingsLists=()=>{
             $('set-cd-list').innerHTML=(config.countdowns||[]).map((c,i)=>`<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');
             $('set-habit-list').innerHTML=(config.habits||[]).map((h,i)=>`<div class="list-item"><span style="font-size:0.9rem">✦ ${h}</span><button class="btn-icon btn-delete" onclick="delHabit(${i})">×</button></div>`).join('');
-            $('set-shop-list').innerHTML=(config.shopping||[]).map((s,i)=>`<div class="list-item"><span style="font-size:0.9rem">🛍️ ${s.name} ${s.price?`(${s.price})`:''}</span><button class="btn-icon btn-delete" onclick="delShopItem(${i})">×</button></div>`).join('');
+            // V6.5 Rebranded Wishlist in Settings
+            $('set-shop-list').innerHTML=(config.shopping||[]).map((s,i)=>`<div class="list-item"><span style="font-size:0.9rem">🌟 ${s.name} ${s.price?`(${s.price})`:''}</span><button class="btn-icon btn-delete" onclick="delShopItem(${i})">×</button></div>`).join('');
         };
         window.addCd=()=>{const n=$('new-cd-name').value,d=$('new-cd-date').value;if(n&&d){config.countdowns.push({name:n,date:d});persistConfig();$('new-cd-name').value='';}};window.delCd=i=>{config.countdowns.splice(i,1);persistConfig();};window.addHabit=()=>{const t=$('new-habit-text').value.trim();if(t){config.habits=config.habits||[];config.habits.push(t);persistConfig();$('new-habit-text').value='';}};window.delHabit=i=>{config.habits.splice(i,1);persistConfig();};
         window.addShopItem=()=>{const n=$('new-shop-name').value.trim(),p=$('new-shop-price').value.trim();if(n){config.shopping=config.shopping||[];config.shopping.push({name:n,price:p});persistConfig();$('new-shop-name').value='';$('new-shop-price').value='';}};window.delShopItem=i=>{config.shopping.splice(i,1);persistConfig();};
