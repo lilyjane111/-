@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>My Time</title>
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=12">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=12">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=13">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=13">
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -61,15 +61,13 @@
         .sync-dot { width: 8px; height: 8px; background: #ccc; border-radius: 50%; position: absolute; top: 0; right: 0; }
         .sync-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
 
-        /* --- V6.2 Balanced Layout (V6.6 Stabilized) --- */
+        /* --- V6.6 Balanced & Stable Layout --- */
         .layout-grid {
             flex: 1; display: grid; gap: 15px; padding: 10px 20px 20px; max-width: 1200px; margin: 0 auto; width: 100%;
             grid-template-columns: 2fr 1fr; grid-template-rows: 1fr; overflow: hidden;
         }
-        /* V6.6 Fix: Ensure fixed height for main columns to force internal scrolling */
         .main-content-col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; height: 100%; min-height: 0; }
         .sidebar-col { display: flex; flex-direction: column; gap: 15px; height: 100%; min-height: 0; }
-        
         @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .main-content-col { height: auto; } .sidebar-col { overflow-y: auto; } }
         @media (max-width: 600px) { .main-content-col { grid-template-columns: 1fr; } }
 
@@ -80,7 +78,7 @@
         .month-title { font-family: var(--font-serif); font-size: 1.1rem; font-weight: 700; }
         .nav-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--text-sub); padding: 0 5px; }
         .today-btn { font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--accent); border-radius: 12px; color: var(--accent); background: transparent; cursor: pointer; margin-left: 5px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; align-content: start; flex: 1; overflow-y: auto; /* Ensure calendar itself scrolls if needed */ }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; align-content: start; flex: 1; overflow-y: auto; }
         .day-label { text-align: center; font-size: 0.7rem; color: var(--text-sub); font-weight: 600; margin-bottom: 5px; }
         .date-cell { border-radius: 10px; background: rgba(0,0,0,0.02); padding: 6px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; position: relative; min-height: 34px; }
         .date-cell:hover { background: rgba(0,0,0,0.06); } .date-cell.today { background: var(--accent); color: var(--bg-color); }
@@ -104,12 +102,9 @@
         .cd-number span { font-size: 0.8rem; font-family: var(--font-main); font-weight: 400; margin-left: 3px; }
         .cd-date { font-size: 0.7rem; color: var(--text-sub); opacity: 0.7; }
 
-        /* V6.6 Fix: Ensure containers have constraints to force scrolling */
-        .overview-box { flex: 1; display: flex; flex-direction: column; min-height: 0; /* Crucial for nested flex scrolling */ }
+        .overview-box { flex: 1; display: flex; flex-direction: column; min-height: 0; }
         .box-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px; display: flex; align-items: center; gap: 6px; color: var(--accent); }
-        /* V6.6 Fix: Force overflow-y auto */
         .list-scroll { overflow-y: auto; flex: 1; padding-right: 2px; }
-        
         .overview-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.03); font-size: 0.85rem; cursor: pointer; }
         .overview-item:hover { color: var(--accent); }
         .tag-date { font-size: 0.7rem; background: rgba(0,0,0,0.04); padding: 1px 5px; border-radius: 4px; color: var(--text-sub); white-space: nowrap; }
@@ -186,7 +181,7 @@
             <div class="glass-card overview-box main-list">
                 <div class="tab-header">
                     <button class="tab-btn active" onclick="switchTab('tasks')" id="tab-btn-tasks">📋 Tasks</button>
-                    <button class="tab-btn" onclick="switchTab('shopping')" id="tab-btn-shopping">🌟 Wishes</button>
+                    <button class="tab-btn" onclick="switchTab('shopping')" id="tab-btn-shopping">📌 Anytime Tasks</button>
                 </div>
                 <div class="tab-content active" id="tab-content-tasks">
                     <div class="list-scroll" id="overview-tasks"></div>
@@ -258,7 +253,7 @@
                 <div class="setting-block"><h3>☁️ Cloud Sync <span id="sync-status-display" style="font-size:0.8rem; float:right; opacity:0.7"></span></h3><input type="text" class="std-input" id="set-sync-id" placeholder="Sync ID"><textarea class="config-area" id="set-firebase-cfg" placeholder="Firebase Config Object"></textarea><button class="full-btn" onclick="saveSettings()">Connect & Save</button></div>
                 <div class="setting-block"><h3>🎨 Theme</h3><div class="theme-grid"><div class="theme-swatch" onclick="setTheme('white')">White</div><div class="theme-swatch" onclick="setTheme('dark')">Dark</div><div class="theme-swatch" onclick="setTheme('monet')">Monet</div><div class="theme-swatch" onclick="setTheme('sakura')">Sakura</div><div class="theme-swatch" onclick="setTheme('nordic')">Nordic</div><div class="theme-swatch" onclick="setTheme('cyber')">Cyber</div><div class="theme-swatch" onclick="setTheme('retro')">Retro</div></div></div>
                 <div class="setting-block"><h3>✨ Habits</h3><div id="set-habit-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-habit-text" placeholder="New habit..."><button class="action-btn" onclick="addHabit()">+</button></div></div>
-                <div class="setting-block"><h3>🌟 Wishlist & Goals</h3><div id="set-shop-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-shop-name" placeholder="Goal/Wish name" style="flex:2"><input type="text" class="std-input" id="new-shop-price" placeholder="Notes/Cost (opt.)" style="flex:1"><button class="action-btn" onclick="addShopItem()">+</button></div></div>
+                <div class="setting-block"><h3>📌 Anytime Tasks & Goals</h3><div id="set-shop-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-shop-name" placeholder="Task name" style="flex:2"><input type="text" class="std-input" id="new-shop-price" placeholder="Notes (opt.)" style="flex:1"><button class="action-btn" onclick="addShopItem()">+</button></div></div>
                 <div class="setting-block"><h3>🎉 Countdowns</h3><div id="set-cd-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-cd-name" placeholder="Name"><input type="date" class="std-input" id="new-cd-date"><button class="action-btn" onclick="addCd()">+</button></div></div>
                 <div class="setting-block"><h3>🖼️ Background</h3><input type="file" class="std-input" accept="image/*" onchange="uploadBg(event)"><button class="full-btn" style="background:var(--danger); margin-top:5px" onclick="clearBg()">Clear BG</button></div>
             </div>
@@ -301,22 +296,25 @@
 
         window.renderWidgets=()=>{
             const cds=config.countdowns||[], elT=$('cd-title'), elD=$('cd-days'), elSub=$('cd-date-text');
-            if(!cds.length){elT.innerText='NO EVENT';elD.innerText='-';elSub.innerText='Setup in settings';}else{if(cdIdx>=cds.length)cdIdx=0;const cd=cds[cdIdx], diff=Math.ceil((new Date(cd.date)-new Date().setHours(0,0,0,0))/(86400000));elT.innerText=cd.name;elD.innerHTML=diff>0?diff:(diff===0?'NOW':Math.abs(diff));elD.innerHTML+='<span>DAYS</span>';elSub.innerText=`${cd.date} (${cdIdx+1}/${cds.length})`;}
+            if(!cds.length){elT.innerText='NO EVENT';elD.innerText='-';elSub.innerText='Setup in settings';}else{if(cdIdx>=cds.length)cdIdx=0;const cd=cds[cdIdx];
+                // V7.0: Improved Countdown Logic
+                const today=new Date().setHours(0,0,0,0), target=new Date(cd.date).setHours(0,0,0,0);
+                const diff=Math.ceil((target-today)/(86400000)), absDiff=Math.abs(diff);
+                let labelStr='DAYS LEFT', numStr=absDiff;
+                if(diff<0) labelStr='DAYS AGO'; else if(diff===0) {numStr='TODAY'; labelStr='';}
+                elT.innerText=cd.name; elD.innerHTML=`${numStr}<span>${labelStr}</span>`; elSub.innerText=`${cd.date} (${cdIdx+1}/${cds.length})`;
+            }
             
-            // V6.6 Habits Render with Edit
             $('overview-habits').innerHTML=(config.habits||[]).map((h,i)=>{
-                if(editingItem.type==='habit' && editingItem.id===i){
-                    return `<div class="habit-item" style="background:var(--glass); padding:4px;"><input type="text" id="edit-habit-${i}" class="edit-input" value="${h}" style="flex:1;"><div class="edit-actions"><button class="btn-icon btn-save" onclick="saveEdit('habit',${i})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`;
-                }
+                if(editingItem.type==='habit' && editingItem.id===i){ return `<div class="habit-item" style="background:var(--glass); padding:4px;"><input type="text" id="edit-habit-${i}" class="edit-input" value="${h}" style="flex:1;"><div class="edit-actions"><button class="btn-icon btn-save" onclick="saveEdit('habit',${i})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`; }
                 return `<div class="habit-item" style="justify-content:space-between;"><div style="flex:1; display:flex; align-items:center;"><span class="habit-icon">✦</span> ${h}</div><div class="item-actions" style="opacity:0.5;"><button class="btn-icon" style="font-size:0.8rem" onclick="editItem('habit',${i})">✎</button></div></div>`;
             }).join('')||'<div class="empty-state">Add in settings</div>';
             
+            // V7.0: Rebranded to Anytime Tasks
             $('overview-shopping').innerHTML=(config.shopping||[]).map((s,i)=>{
-                if(editingItem.type==='wish' && editingItem.id===i){
-                    return `<div class="overview-item" style="background:var(--glass); cursor:default; flex-wrap:wrap; gap:5px;"><input type="text" id="edit-wish-name-${i}" class="edit-input" value="${s.name}" style="min-width:120px; flex:2;"><input type="text" id="edit-wish-note-${i}" class="edit-input" value="${s.price||''}" placeholder="Notes..." style="min-width:80px; flex:1;"><div class="edit-actions"><button class="btn-icon btn-save" onclick="saveEdit('wish',${i})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`;
-                }
-                return `<div class="overview-item" style="cursor:default; align-items: center;"><div style="flex:1; display:flex; align-items:center; gap:5px;">🌟 ${s.name} ${s.price?`<span class="shop-price" style="margin:0">${s.price}</span>`:''}</div><div class="item-actions" style="margin-left:8px; opacity:0.5;"><button class="btn-icon" style="font-size:0.8rem" onclick="editItem('wish',${i})">✎</button></div></div>`;
-            }).join('')||'<div class="empty-state">No wishes yet</div>';
+                if(editingItem.type==='wish' && editingItem.id===i){ return `<div class="overview-item" style="background:var(--glass); cursor:default; flex-wrap:wrap; gap:5px;"><input type="text" id="edit-wish-name-${i}" class="edit-input" value="${s.name}" style="min-width:120px; flex:2;"><input type="text" id="edit-wish-note-${i}" class="edit-input" value="${s.price||''}" placeholder="Notes..." style="min-width:80px; flex:1;"><div class="edit-actions"><button class="btn-icon btn-save" onclick="saveEdit('wish',${i})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`; }
+                return `<div class="overview-item" style="cursor:default; align-items: center;"><div style="flex:1; display:flex; align-items:center; gap:5px;">📌 ${s.name} ${s.price?`<span class="shop-price" style="margin:0">${s.price}</span>`:''}</div><div class="item-actions" style="margin-left:8px; opacity:0.5;"><button class="btn-icon" style="font-size:0.8rem" onclick="editItem('wish',${i})">✎</button></div></div>`;
+            }).join('')||'<div class="empty-state">No anytime tasks</div>';
 
             let tasks=[], sches=[]; const today=new Date(); today.setHours(0,0,0,0);
             Object.keys(data).forEach(k=>{
@@ -344,7 +342,6 @@
         window.setMood=m=>{const d=getDayData(selKey);d.mood=(d.mood===m)?null:m;saveDayData(selKey,d);};
         window.togglePeriod=()=>{const d=getDayData(selKey);d.isPeriod=!d.isPeriod;saveDayData(selKey,d);};
         window.addSche=()=>{const t=$('in-sche-time').value,x=$('in-sche-text').value.trim();if(x){const d=getDayData(selKey);d.schedules.push({time:t,text:x});saveDayData(selKey,d);$('in-sche-text').value='';}};window.addTodo=()=>{const x=$('in-todo').value.trim();if(x){const d=getDayData(selKey);d.todos.push(x);saveDayData(selKey,d);$('in-todo').value='';}};window.addThought=()=>{const x=$('in-thought').value.trim();if(x){const d=getDayData(selKey);const now=new Date();const timeStr=now.toLocaleString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});d.thoughts.push({id:Date.now(),text:x,time:timeStr});saveDayData(selKey,d);$('in-thought').value='';}};window.delItem=(type,id)=>{if(!confirm("Delete?"))return;const d=getDayData(selKey);if(type==='sche')d.schedules.splice(id,1);if(type==='todo')d.todos.splice(id,1);if(type==='done')d.dones.splice(id,1);if(type==='thought')d.thoughts=d.thoughts.filter(t=>t.id!==id);saveDayData(selKey,d);};
-        // V6.6 Edit Logic updated for Habits
         window.editItem=(type,id)=>{editingItem={type,id}; if(type==='wish' || type==='habit') renderWidgets(); else renderDayModal(selKey);};
         window.cancelEdit=()=>{const isWidget=editingItem.type==='wish'||editingItem.type==='habit'; editingItem={type:null,id:null}; if(isWidget) renderWidgets(); else renderDayModal(selKey);};
         window.saveEdit=(type,id)=>{
@@ -361,7 +358,8 @@
         window.renderSettingsLists=()=>{
             $('set-cd-list').innerHTML=(config.countdowns||[]).map((c,i)=>`<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');
             $('set-habit-list').innerHTML=(config.habits||[]).map((h,i)=>`<div class="list-item"><span style="font-size:0.9rem">✦ ${h}</span><button class="btn-icon btn-delete" onclick="delHabit(${i})">×</button></div>`).join('');
-            $('set-shop-list').innerHTML=(config.shopping||[]).map((s,i)=>`<div class="list-item"><span style="font-size:0.9rem">🌟 ${s.name} ${s.price?`(${s.price})`:''}</span><button class="btn-icon btn-delete" onclick="delShopItem(${i})">×</button></div>`).join('');
+            // V7.0 Rebranded to Anytime Tasks in Settings
+            $('set-shop-list').innerHTML=(config.shopping||[]).map((s,i)=>`<div class="list-item"><span style="font-size:0.9rem">📌 ${s.name} ${s.price?`(${s.price})`:''}</span><button class="btn-icon btn-delete" onclick="delShopItem(${i})">×</button></div>`).join('');
         };
         window.addCd=()=>{const n=$('new-cd-name').value,d=$('new-cd-date').value;if(n&&d){config.countdowns.push({name:n,date:d});persistConfig();$('new-cd-name').value='';}};window.delCd=i=>{config.countdowns.splice(i,1);persistConfig();};window.addHabit=()=>{const t=$('new-habit-text').value.trim();if(t){config.habits=config.habits||[];config.habits.push(t);persistConfig();$('new-habit-text').value='';}};window.delHabit=i=>{config.habits.splice(i,1);persistConfig();};
         window.addShopItem=()=>{const n=$('new-shop-name').value.trim(),p=$('new-shop-price').value.trim();if(n){config.shopping=config.shopping||[];config.shopping.push({name:n,price:p});persistConfig();$('new-shop-name').value='';$('new-shop-price').value='';}};window.delShopItem=i=>{config.shopping.splice(i,1);persistConfig();};
