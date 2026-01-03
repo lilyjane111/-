@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>My Time</title>
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=13">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=13">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=14">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=14">
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -61,15 +61,19 @@
         .sync-dot { width: 8px; height: 8px; background: #ccc; border-radius: 50%; position: absolute; top: 0; right: 0; }
         .sync-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
 
-        /* --- V6.6 Balanced & Stable Layout --- */
+        /* --- V7.1 New Layout Structure --- */
         .layout-grid {
             flex: 1; display: grid; gap: 15px; padding: 10px 20px 20px; max-width: 1200px; margin: 0 auto; width: 100%;
-            grid-template-columns: 2fr 1fr; grid-template-rows: 1fr; overflow: hidden;
+            /* Adjusted ratio: Left is wider, but Right has more vertical space now */
+            grid-template-columns: 1.6fr 1fr; 
+            grid-template-rows: 1fr; overflow: hidden;
         }
-        .main-content-col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; height: 100%; min-height: 0; }
+        /* Left column is now just a single flex container for the main list */
+        .main-content-col { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+        /* Right column stacks 4 items vertically */
         .sidebar-col { display: flex; flex-direction: column; gap: 15px; height: 100%; min-height: 0; }
-        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .main-content-col { height: auto; } .sidebar-col { overflow-y: auto; } }
-        @media (max-width: 600px) { .main-content-col { grid-template-columns: 1fr; } }
+        
+        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .main-content-col { height: 500px; /* Give it fixed height on mobile */ } .sidebar-col { overflow-y: auto; } }
 
         .glass-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s; }
 
@@ -178,7 +182,7 @@
 
     <div class="layout-grid">
         <div class="main-content-col">
-            <div class="glass-card overview-box main-list">
+            <div class="glass-card overview-box main-list" style="flex:1;">
                 <div class="tab-header">
                     <button class="tab-btn active" onclick="switchTab('tasks')" id="tab-btn-tasks">📋 Tasks</button>
                     <button class="tab-btn" onclick="switchTab('shopping')" id="tab-btn-shopping">📌 Anytime Tasks</button>
@@ -190,11 +194,6 @@
                     <div class="list-scroll" id="overview-shopping"></div>
                     <div class="empty-state" style="font-size:0.8rem; margin-top:10px;">Manage in settings</div>
                 </div>
-            </div>
-
-            <div class="glass-card overview-box main-list">
-                <div class="box-title">📅 Upcoming Schedule</div>
-                <div class="list-scroll" id="overview-schedule"></div>
             </div>
         </div>
 
@@ -208,11 +207,15 @@
                 </div>
                 <button class="cd-nav cd-next" onclick="swapCd(1)">›</button>
             </div>
-            <div class="glass-card overview-box" style="flex:none; height: 200px;">
+            <div class="glass-card overview-box" style="flex:none; height: 150px;">
                 <div class="box-title">✨ Habits & Mantras</div>
                 <div class="list-scroll" id="overview-habits"></div>
             </div>
-            <div class="glass-card calendar-container" style="flex: 1; min-height: 250px;">
+            <div class="glass-card overview-box main-list" style="flex:none; height: 180px;">
+                <div class="box-title">📅 Upcoming Schedule</div>
+                <div class="list-scroll" id="overview-schedule"></div>
+            </div>
+            <div class="glass-card calendar-container" style="flex: 1; min-height: 280px;">
                 <div class="calendar-header">
                     <span class="month-title" id="cal-title">Month</span>
                     <div style="display:flex; align-items:center">
@@ -297,7 +300,6 @@
         window.renderWidgets=()=>{
             const cds=config.countdowns||[], elT=$('cd-title'), elD=$('cd-days'), elSub=$('cd-date-text');
             if(!cds.length){elT.innerText='NO EVENT';elD.innerText='-';elSub.innerText='Setup in settings';}else{if(cdIdx>=cds.length)cdIdx=0;const cd=cds[cdIdx];
-                // V7.0: Improved Countdown Logic
                 const today=new Date().setHours(0,0,0,0), target=new Date(cd.date).setHours(0,0,0,0);
                 const diff=Math.ceil((target-today)/(86400000)), absDiff=Math.abs(diff);
                 let labelStr='DAYS LEFT', numStr=absDiff;
@@ -310,7 +312,6 @@
                 return `<div class="habit-item" style="justify-content:space-between;"><div style="flex:1; display:flex; align-items:center;"><span class="habit-icon">✦</span> ${h}</div><div class="item-actions" style="opacity:0.5;"><button class="btn-icon" style="font-size:0.8rem" onclick="editItem('habit',${i})">✎</button></div></div>`;
             }).join('')||'<div class="empty-state">Add in settings</div>';
             
-            // V7.0: Rebranded to Anytime Tasks
             $('overview-shopping').innerHTML=(config.shopping||[]).map((s,i)=>{
                 if(editingItem.type==='wish' && editingItem.id===i){ return `<div class="overview-item" style="background:var(--glass); cursor:default; flex-wrap:wrap; gap:5px;"><input type="text" id="edit-wish-name-${i}" class="edit-input" value="${s.name}" style="min-width:120px; flex:2;"><input type="text" id="edit-wish-note-${i}" class="edit-input" value="${s.price||''}" placeholder="Notes..." style="min-width:80px; flex:1;"><div class="edit-actions"><button class="btn-icon btn-save" onclick="saveEdit('wish',${i})">✔</button><button class="btn-icon btn-cancel" onclick="cancelEdit()">✖</button></div></div>`; }
                 return `<div class="overview-item" style="cursor:default; align-items: center;"><div style="flex:1; display:flex; align-items:center; gap:5px;">📌 ${s.name} ${s.price?`<span class="shop-price" style="margin:0">${s.price}</span>`:''}</div><div class="item-actions" style="margin-left:8px; opacity:0.5;"><button class="btn-icon" style="font-size:0.8rem" onclick="editItem('wish',${i})">✎</button></div></div>`;
@@ -358,7 +359,6 @@
         window.renderSettingsLists=()=>{
             $('set-cd-list').innerHTML=(config.countdowns||[]).map((c,i)=>`<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');
             $('set-habit-list').innerHTML=(config.habits||[]).map((h,i)=>`<div class="list-item"><span style="font-size:0.9rem">✦ ${h}</span><button class="btn-icon btn-delete" onclick="delHabit(${i})">×</button></div>`).join('');
-            // V7.0 Rebranded to Anytime Tasks in Settings
             $('set-shop-list').innerHTML=(config.shopping||[]).map((s,i)=>`<div class="list-item"><span style="font-size:0.9rem">📌 ${s.name} ${s.price?`(${s.price})`:''}</span><button class="btn-icon btn-delete" onclick="delShopItem(${i})">×</button></div>`).join('');
         };
         window.addCd=()=>{const n=$('new-cd-name').value,d=$('new-cd-date').value;if(n&&d){config.countdowns.push({name:n,date:d});persistConfig();$('new-cd-name').value='';}};window.delCd=i=>{config.countdowns.splice(i,1);persistConfig();};window.addHabit=()=>{const t=$('new-habit-text').value.trim();if(t){config.habits=config.habits||[];config.habits.push(t);persistConfig();$('new-habit-text').value='';}};window.delHabit=i=>{config.habits.splice(i,1);persistConfig();};
