@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>My Time</title>
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=14">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=14">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=15">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=15">
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -61,19 +61,14 @@
         .sync-dot { width: 8px; height: 8px; background: #ccc; border-radius: 50%; position: absolute; top: 0; right: 0; }
         .sync-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
 
-        /* --- V7.1 New Layout Structure --- */
+        /* --- V7.1 Layout Structure --- */
         .layout-grid {
             flex: 1; display: grid; gap: 15px; padding: 10px 20px 20px; max-width: 1200px; margin: 0 auto; width: 100%;
-            /* Adjusted ratio: Left is wider, but Right has more vertical space now */
-            grid-template-columns: 1.6fr 1fr; 
-            grid-template-rows: 1fr; overflow: hidden;
+            grid-template-columns: 1.6fr 1fr; grid-template-rows: 1fr; overflow: hidden;
         }
-        /* Left column is now just a single flex container for the main list */
         .main-content-col { display: flex; flex-direction: column; height: 100%; min-height: 0; }
-        /* Right column stacks 4 items vertically */
         .sidebar-col { display: flex; flex-direction: column; gap: 15px; height: 100%; min-height: 0; }
-        
-        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .main-content-col { height: 500px; /* Give it fixed height on mobile */ } .sidebar-col { overflow-y: auto; } }
+        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .main-content-col { height: 500px; } .sidebar-col { overflow-y: auto; } }
 
         .glass-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s; }
 
@@ -124,10 +119,11 @@
         .quote-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-sub); cursor: pointer; opacity: 0.4; padding: 2px 8px; }
         .quote-btn:hover { opacity: 1; color: var(--accent); }
 
-        /* --- Modals --- */
+        /* --- Modals (V7.2 Bigger) --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; display: flex; justify-content: center; align-items: center; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: var(--glass); border: 1px solid var(--glass-border); width: 90%; max-width: 500px; height: 80vh; border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        /* V7.2 Change: Increased max-width to 800px and height to 85vh */
+        .modal-card { background: var(--glass); border: 1px solid var(--glass-border); width: 90%; max-width: 800px; height: 85vh; border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .modal-overlay.active .modal-card { transform: translateY(0); }
         @media (max-width: 600px) { .modal-overlay { align-items: flex-end; } .modal-card { width: 100%; height: 90vh; border-radius: 24px 24px 0 0; transform: translateY(100%); } }
         .modal-header { padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
@@ -245,7 +241,7 @@
             <div class="modal-body">
                 <div><div class="section-header">Schedule</div><div class="input-row"><input type="time" class="std-input" id="in-sche-time" style="flex:0.4"><input type="text" class="std-input" id="in-sche-text" placeholder="Event details..."><button class="action-btn" onclick="addSche()">+</button></div><div id="list-sche"></div></div>
                 <div><div class="section-header">To-Do List</div><div class="input-row"><input type="text" class="std-input" id="in-todo" placeholder="Add a task..."><button class="action-btn" onclick="addTodo()">+</button></div><div id="list-todo"></div><div class="section-header" style="margin-top:20px; font-size:0.8rem; opacity:0.7">Completed</div><div id="list-done"></div></div>
-                <div><div class="section-header">Thoughts</div><div class="input-row"><textarea class="std-input" id="in-thought" placeholder="Write something..." style="height:60px; resize:none"></textarea><button class="action-btn" style="height:60px" onclick="addThought()">✎</button></div><div id="list-thought"></div></div>
+                <div><div class="section-header">Thoughts</div><div class="input-row"><textarea class="std-input" id="in-thought" placeholder="Write something..." style="height:120px; resize:none"></textarea><button class="action-btn" style="height:120px" onclick="addThought()">✎</button></div><div id="list-thought"></div></div>
             </div>
         </div>
     </div>
