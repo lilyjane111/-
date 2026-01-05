@@ -7,8 +7,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>My Time</title>
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=15">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=15">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=17">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/7507/7507841.png?v=17">
 
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -61,14 +61,17 @@
         .sync-dot { width: 8px; height: 8px; background: #ccc; border-radius: 50%; position: absolute; top: 0; right: 0; }
         .sync-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
 
-        /* --- V7.1 Layout Structure --- */
+        /* --- V7.3 Layout Structure (Calendar Hero) --- */
         .layout-grid {
             flex: 1; display: grid; gap: 15px; padding: 10px 20px 20px; max-width: 1200px; margin: 0 auto; width: 100%;
-            grid-template-columns: 1.6fr 1fr; grid-template-rows: 1fr; overflow: hidden;
+            /* V7.3 Change: Left is narrow sidebar, Right is wide main area */
+            grid-template-columns: 1fr 2.5fr; 
+            grid-template-rows: 1fr; overflow: hidden;
         }
-        .main-content-col { display: flex; flex-direction: column; height: 100%; min-height: 0; }
-        .sidebar-col { display: flex; flex-direction: column; gap: 15px; height: 100%; min-height: 0; }
-        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .main-content-col { height: 500px; } .sidebar-col { overflow-y: auto; } }
+        /* Common styles for both columns */
+        .col-container { display: flex; flex-direction: column; gap: 15px; height: 100%; min-height: 0; }
+        
+        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .col-container { overflow-y: auto; height: auto; } .main-right-col { height: 500px; /* Ensure calendar has height on mobile */ } }
 
         .glass-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s; }
 
@@ -77,6 +80,7 @@
         .month-title { font-family: var(--font-serif); font-size: 1.1rem; font-weight: 700; }
         .nav-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--text-sub); padding: 0 5px; }
         .today-btn { font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--accent); border-radius: 12px; color: var(--accent); background: transparent; cursor: pointer; margin-left: 5px; }
+        /* Calendar grid now takes up remaining space and scrolls if needed */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; align-content: start; flex: 1; overflow-y: auto; }
         .day-label { text-align: center; font-size: 0.7rem; color: var(--text-sub); font-weight: 600; margin-bottom: 5px; }
         .date-cell { border-radius: 10px; background: rgba(0,0,0,0.02); padding: 6px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; position: relative; min-height: 34px; }
@@ -119,10 +123,10 @@
         .quote-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-sub); cursor: pointer; opacity: 0.4; padding: 2px 8px; }
         .quote-btn:hover { opacity: 1; color: var(--accent); }
 
-        /* --- Modals (V7.2 Bigger) --- */
+        /* --- Modals --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; display: flex; justify-content: center; align-items: center; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        /* V7.2 Change: Increased max-width to 800px and height to 85vh */
+        /* V7.2 Bigger Modal */
         .modal-card { background: var(--glass); border: 1px solid var(--glass-border); width: 90%; max-width: 800px; height: 85vh; border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .modal-overlay.active .modal-card { transform: translateY(0); }
         @media (max-width: 600px) { .modal-overlay { align-items: flex-end; } .modal-card { width: 100%; height: 90vh; border-radius: 24px 24px 0 0; transform: translateY(100%); } }
@@ -177,23 +181,7 @@
     <div class="settings-trigger" onclick="openSettings()"><div class="sync-dot" id="sync-dot"></div>⚙️</div>
 
     <div class="layout-grid">
-        <div class="main-content-col">
-            <div class="glass-card overview-box main-list" style="flex:1;">
-                <div class="tab-header">
-                    <button class="tab-btn active" onclick="switchTab('tasks')" id="tab-btn-tasks">📋 Tasks</button>
-                    <button class="tab-btn" onclick="switchTab('shopping')" id="tab-btn-shopping">📌 Anytime Tasks</button>
-                </div>
-                <div class="tab-content active" id="tab-content-tasks">
-                    <div class="list-scroll" id="overview-tasks"></div>
-                </div>
-                <div class="tab-content" id="tab-content-shopping">
-                    <div class="list-scroll" id="overview-shopping"></div>
-                    <div class="empty-state" style="font-size:0.8rem; margin-top:10px;">Manage in settings</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="sidebar-col">
+        <div class="col-container sidebar-left-col">
              <div class="glass-card countdown-box" style="flex:none; height: 120px;">
                 <button class="cd-nav cd-prev" onclick="swapCd(-1)">‹</button>
                 <div onclick="openSettings()" style="cursor:pointer">
@@ -207,11 +195,27 @@
                 <div class="box-title">✨ Habits & Mantras</div>
                 <div class="list-scroll" id="overview-habits"></div>
             </div>
-            <div class="glass-card overview-box main-list" style="flex:none; height: 180px;">
+            <div class="glass-card overview-box main-list" style="flex:1;">
+                <div class="tab-header">
+                    <button class="tab-btn active" onclick="switchTab('tasks')" id="tab-btn-tasks">📋 Tasks</button>
+                    <button class="tab-btn" onclick="switchTab('shopping')" id="tab-btn-shopping">📌 Anytime</button>
+                </div>
+                <div class="tab-content active" id="tab-content-tasks">
+                    <div class="list-scroll" id="overview-tasks"></div>
+                </div>
+                <div class="tab-content" id="tab-content-shopping">
+                    <div class="list-scroll" id="overview-shopping"></div>
+                    <div class="empty-state" style="font-size:0.8rem; margin-top:10px;">Manage in settings</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-container main-right-col">
+            <div class="glass-card overview-box main-list" style="flex:none; height: 160px;">
                 <div class="box-title">📅 Upcoming Schedule</div>
                 <div class="list-scroll" id="overview-schedule"></div>
             </div>
-            <div class="glass-card calendar-container" style="flex: 1; min-height: 280px;">
+            <div class="glass-card calendar-container" style="flex: 1; min-height: 400px;">
                 <div class="calendar-header">
                     <span class="month-title" id="cal-title">Month</span>
                     <div style="display:flex; align-items:center">
