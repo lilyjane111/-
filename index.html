@@ -64,14 +64,10 @@
         /* --- V7.3 Layout Structure (Calendar Hero) --- */
         .layout-grid {
             flex: 1; display: grid; gap: 15px; padding: 10px 20px 20px; max-width: 1200px; margin: 0 auto; width: 100%;
-            /* V7.3 Change: Left is narrow sidebar, Right is wide main area */
-            grid-template-columns: 1fr 2.5fr; 
-            grid-template-rows: 1fr; overflow: hidden;
+            grid-template-columns: 1fr 2.5fr; grid-template-rows: 1fr; overflow: hidden;
         }
-        /* Common styles for both columns */
         .col-container { display: flex; flex-direction: column; gap: 15px; height: 100%; min-height: 0; }
-        
-        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .col-container { overflow-y: auto; height: auto; } .main-right-col { height: 500px; /* Ensure calendar has height on mobile */ } }
+        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .col-container { overflow-y: auto; height: auto; } .main-right-col { height: 500px; } }
 
         .glass-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s; }
 
@@ -80,7 +76,6 @@
         .month-title { font-family: var(--font-serif); font-size: 1.1rem; font-weight: 700; }
         .nav-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--text-sub); padding: 0 5px; }
         .today-btn { font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--accent); border-radius: 12px; color: var(--accent); background: transparent; cursor: pointer; margin-left: 5px; }
-        /* Calendar grid now takes up remaining space and scrolls if needed */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; align-content: start; flex: 1; overflow-y: auto; }
         .day-label { text-align: center; font-size: 0.7rem; color: var(--text-sub); font-weight: 600; margin-bottom: 5px; }
         .date-cell { border-radius: 10px; background: rgba(0,0,0,0.02); padding: 6px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; position: relative; min-height: 34px; }
@@ -126,7 +121,6 @@
         /* --- Modals --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; display: flex; justify-content: center; align-items: center; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        /* V7.2 Bigger Modal */
         .modal-card { background: var(--glass); border: 1px solid var(--glass-border); width: 90%; max-width: 800px; height: 85vh; border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .modal-overlay.active .modal-card { transform: translateY(0); }
         @media (max-width: 600px) { .modal-overlay { align-items: flex-end; } .modal-card { width: 100%; height: 90vh; border-radius: 24px 24px 0 0; transform: translateY(100%); } }
@@ -178,7 +172,7 @@
         </div>
         <div class="date-display" id="clock-date">Loading...</div>
     </header>
-    <div class="settings-trigger" onclick="openSettings()"><div class="sync-dot" id="sync-dot"></div>⚙️</div>
+    <div class="settings-trigger" onclick="openSettings()"><div class="sync-dot" id="sync-dot"></div>🎨</div>
 
     <div class="layout-grid">
         <div class="col-container sidebar-left-col">
@@ -251,9 +245,10 @@
     </div>
     <div class="modal-overlay" id="modal-settings">
         <div class="modal-card" style="height:auto; max-height:90vh;" onclick="event.stopPropagation()">
-            <div class="modal-header"><div class="modal-date" style="font-size:1.5rem">Settings</div></div>
+            <div class="modal-header"><div class="modal-date" style="font-size:1.5rem">Personalize</div></div>
             <div class="modal-body settings-container">
-                <div class="setting-block"><h3>☁️ Cloud Sync <span id="sync-status-display" style="font-size:0.8rem; float:right; opacity:0.7"></span></h3><input type="text" class="std-input" id="set-sync-id" placeholder="Sync ID"><textarea class="config-area" id="set-firebase-cfg" placeholder="Firebase Config Object"></textarea><button class="full-btn" onclick="saveSettings()">Connect & Save</button></div>
+                <div class="setting-block" style="display:none;"><h3>☁️ Cloud Sync <span id="sync-status-display" style="font-size:0.8rem; float:right; opacity:0.7"></span></h3><input type="text" class="std-input" id="set-sync-id"><textarea class="config-area" id="set-firebase-cfg"></textarea><button class="full-btn" onclick="saveSettings()">Connect & Save</button></div>
+                
                 <div class="setting-block"><h3>🎨 Theme</h3><div class="theme-grid"><div class="theme-swatch" onclick="setTheme('white')">White</div><div class="theme-swatch" onclick="setTheme('dark')">Dark</div><div class="theme-swatch" onclick="setTheme('monet')">Monet</div><div class="theme-swatch" onclick="setTheme('sakura')">Sakura</div><div class="theme-swatch" onclick="setTheme('nordic')">Nordic</div><div class="theme-swatch" onclick="setTheme('cyber')">Cyber</div><div class="theme-swatch" onclick="setTheme('retro')">Retro</div></div></div>
                 <div class="setting-block"><h3>✨ Habits</h3><div id="set-habit-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-habit-text" placeholder="New habit..."><button class="action-btn" onclick="addHabit()">+</button></div></div>
                 <div class="setting-block"><h3>📌 Anytime Tasks & Goals</h3><div id="set-shop-list" style="margin-bottom:8px"></div><div class="input-row"><input type="text" class="std-input" id="new-shop-name" placeholder="Task name" style="flex:2"><input type="text" class="std-input" id="new-shop-price" placeholder="Notes (opt.)" style="flex:1"><button class="action-btn" onclick="addShopItem()">+</button></div></div>
@@ -267,13 +262,27 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        let db=null, syncId=localStorage.getItem('cal_sync_id')||'', data=JSON.parse(localStorage.getItem('cal_data_v5')||'{}'), config=JSON.parse(localStorage.getItem('cal_conf_v5')||'{"theme":"white","countdowns":[],"habits":[],"shopping":[]}'), curDate=new Date(), selKey=null, cdIdx=0, quoteIdx=0, unsubscribe=null;
+        // ✅✅✅ V7.3 Auto-Sync: Hardcoded Credentials ✅✅✅
+        const AUTO_SYNC_ID = 'lilyhappyhappy';
+        const AUTO_FB_CONFIG = {
+          apiKey: "AIzaSyCRCZNByzJ2q4K21G6fYhg-IK-WzOqVtPQ",
+          authDomain: "dailynote-1c751.firebaseapp.com",
+          projectId: "dailynote-1c751",
+          storageBucket: "dailynote-1c751.firebasestorage.app",
+          messagingSenderId: "114698673538",
+          appId: "1:114698673538:web:ca791d7597cfb249d8839b",
+          measurementId: "G-VC947VWYH6"
+        };
+        // ✅✅✅ End Hardcoded Credentials ✅✅✅
+
+        let db=null, syncId=AUTO_SYNC_ID, data=JSON.parse(localStorage.getItem('cal_data_v5')||'{}'), config=JSON.parse(localStorage.getItem('cal_conf_v5')||'{"theme":"white","countdowns":[],"habits":[],"shopping":[]}'), curDate=new Date(), selKey=null, cdIdx=0, quoteIdx=0, unsubscribe=null;
         let editingItem = { type: null, id: null }; let activeTab = 'tasks';
         const quotes=["Love is not a sentiment which can be easily indulged in by anyone regardless of the level of maturity reached by him.","Creativity requires the courage to let go of certainties.","The paradox of love is that two beings become one and yet remain two.","Man's main task in life is to give birth to himself.","To spare oneself from grief at all cost can be achieved only at the price of total detachment.","The ability to be puzzled is the premise of all creation.","Not he who has much is rich, but he who gives much."];
         const $=id=>document.getElementById(id); const getDayData=k=>({schedules:[],todos:[],dones:[],thoughts:[],mood:null,isPeriod:false,...data[k]}); const saveDayData=(k,d)=>{data[k]=d;persist();if(selKey===k)renderDayModal(k);renderCal();renderWidgets();};
         function persist(){localStorage.setItem('cal_data_v5',JSON.stringify(data));if(db&&syncId)setDoc(doc(db,'calendars',syncId),{d:JSON.stringify(data),t:Date.now()}).catch(e=>status(false,'Upload Failed'));}
         function persistConfig(){localStorage.setItem('cal_conf_v5',JSON.stringify(config));renderWidgets();renderSettingsLists();}
-        function connectCloud(raw){status(false,'Connecting...');try{let clean=raw.replace(/const\s+\w+\s*=\s*/,'').replace(/;$/,'');const obj=new Function('return '+clean)();const app=initializeApp(obj);db=getFirestore(app);if(unsubscribe)unsubscribe();unsubscribe=onSnapshot(doc(db,'calendars',syncId),snap=>{if(snap.exists()){data=JSON.parse(snap.data().d);localStorage.setItem('cal_data_v5',JSON.stringify(data));renderCal();renderWidgets();if(selKey)renderDayModal(selKey);status(true,'Synced');}else{persist();status(true,'Initialized');}},err=>{console.error(err);status(false,'Error');});}catch(e){console.error(e);status(false,'Config Error');}}
+        // V7.3 Auto-Sync: Modified connectCloud to accept object directly
+        function connectCloud(configObj){status(false,'Connecting...');try{const app=initializeApp(configObj);db=getFirestore(app);if(unsubscribe)unsubscribe();unsubscribe=onSnapshot(doc(db,'calendars',syncId),snap=>{if(snap.exists()){data=JSON.parse(snap.data().d);localStorage.setItem('cal_data_v5',JSON.stringify(data));renderCal();renderWidgets();if(selKey)renderDayModal(selKey);status(true,'Synced');}else{persist();status(true,'Initialized');}},err=>{console.error(err);status(false,'Error');});}catch(e){console.error(e);status(false,'Config Error');}}
         function status(o,m){const d=$('sync-dot'),t=$('sync-status-display');if(d)d.className=`sync-dot ${o?'online':''}`;if(t){t.innerText=m||(o?'Online':'Offline');t.style.color=o?'var(--success)':'var(--danger)';}}
 
         window.renderCal=()=>{
@@ -355,7 +364,11 @@
             editingItem={type:null,id:null}; if(type!=='wish' && type!=='habit')saveDayData(selKey,d); else renderWidgets();
         };
         window.finTask=i=>{const d=getDayData(selKey);d.dones.unshift(d.todos.splice(i,1)[0]);saveDayData(selKey,d);};window.undoTask=i=>{const d=getDayData(selKey);d.todos.push(d.dones.splice(i,1)[0]);saveDayData(selKey,d);};
-        window.openSettings=()=>{ $('modal-settings').classList.add('active'); $('set-sync-id').value=syncId; $('set-firebase-cfg').value=localStorage.getItem('cal_fb_raw')||''; renderSettingsLists();};window.closeModal=id=>{$(id).classList.remove('active');editingItem={type:null,id:null};renderWidgets();};window.saveSettings=()=>{const id=$('set-sync-id').value.trim();const raw=$('set-firebase-cfg').value.trim();if(id&&raw){localStorage.setItem('cal_sync_id',id);localStorage.setItem('cal_fb_raw',raw);window.syncId=id;connectCloud(raw);}};window.setTheme=t=>{config.theme=t;applyTheme();persistConfig();};window.applyTheme=()=>{document.body.className=`theme-${config.theme}`;if(config.bg){document.body.style.backgroundImage=`url('${config.bg}')`;document.body.classList.add('has-custom-bg');}else{document.body.style.backgroundImage='';document.body.classList.remove('has-custom-bg');}};window.uploadBg=e=>{const r=new FileReader();r.onload=ev=>{config.bg=ev.target.result;applyTheme();persistConfig();};if(e.target.files[0])r.readAsDataURL(e.target.files[0]);};window.clearBg=()=>{config.bg='';applyTheme();persistConfig();};
+        // V7.3 Auto-Sync: Removed input values setting, kept modal open logic
+        window.openSettings=()=>{ $('modal-settings').classList.add('active'); renderSettingsLists();};window.closeModal=id=>{$(id).classList.remove('active');editingItem={type:null,id:null};renderWidgets();};
+        // V7.3 Auto-Sync: saveSettings is now only for habits/theme etc., not for sync credentials
+        window.saveSettings=()=>{persistConfig(); closeModal('modal-settings');};
+        window.setTheme=t=>{config.theme=t;applyTheme();persistConfig();};window.applyTheme=()=>{document.body.className=`theme-${config.theme}`;if(config.bg){document.body.style.backgroundImage=`url('${config.bg}')`;document.body.classList.add('has-custom-bg');}else{document.body.style.backgroundImage='';document.body.classList.remove('has-custom-bg');}};window.uploadBg=e=>{const r=new FileReader();r.onload=ev=>{config.bg=ev.target.result;applyTheme();persistConfig();};if(e.target.files[0])r.readAsDataURL(e.target.files[0]);};window.clearBg=()=>{config.bg='';applyTheme();persistConfig();};
         window.renderSettingsLists=()=>{
             $('set-cd-list').innerHTML=(config.countdowns||[]).map((c,i)=>`<div class="list-item"><span style="font-size:0.8rem">${c.name} (${c.date})</span><button class="btn-icon btn-delete" onclick="delCd(${i})">×</button></div>`).join('');
             $('set-habit-list').innerHTML=(config.habits||[]).map((h,i)=>`<div class="list-item"><span style="font-size:0.9rem">✦ ${h}</span><button class="btn-icon btn-delete" onclick="delHabit(${i})">×</button></div>`).join('');
@@ -364,7 +377,12 @@
         window.addCd=()=>{const n=$('new-cd-name').value,d=$('new-cd-date').value;if(n&&d){config.countdowns.push({name:n,date:d});persistConfig();$('new-cd-name').value='';}};window.delCd=i=>{config.countdowns.splice(i,1);persistConfig();};window.addHabit=()=>{const t=$('new-habit-text').value.trim();if(t){config.habits=config.habits||[];config.habits.push(t);persistConfig();$('new-habit-text').value='';}};window.delHabit=i=>{config.habits.splice(i,1);persistConfig();};
         window.addShopItem=()=>{const n=$('new-shop-name').value.trim(),p=$('new-shop-price').value.trim();if(n){config.shopping=config.shopping||[];config.shopping.push({name:n,price:p});persistConfig();$('new-shop-name').value='';$('new-shop-price').value='';}};window.delShopItem=i=>{config.shopping.splice(i,1);persistConfig();};
         function updateClock(){const n=new Date();$('clock-time').innerText=n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});$('clock-sec').innerText=String(n.getSeconds()).padStart(2,'0');$('clock-date').innerText=n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}window.renderQuote=()=>{if(quoteIdx<0)quoteIdx=quotes.length-1;if(quoteIdx>=quotes.length)quoteIdx=0;$('quote-area').innerText=`"${quotes[quoteIdx]}" — Erich Fromm`;};window.changeQuote=(dir)=>{quoteIdx+=dir;renderQuote();};
-        async function init(){applyTheme();updateClock();setInterval(updateClock,1000);renderQuote();renderCal();renderWidgets();const fbRaw=localStorage.getItem('cal_fb_raw');if(fbRaw&&syncId)connectCloud(fbRaw);document.getElementById('modal-day').addEventListener('click',e=>{if(e.target.id==='modal-day')closeModal('modal-day');});document.getElementById('modal-settings').addEventListener('click',e=>{if(e.target.id==='modal-settings')closeModal('modal-settings');});
+        async function init(){applyTheme();updateClock();setInterval(updateClock,1000);renderQuote();renderCal();renderWidgets();
+
+            // ✅✅✅ V7.3 Auto-Sync: Call connect immediately with hardcoded config ✅✅✅
+            connectCloud(AUTO_FB_CONFIG);
+
+            document.getElementById('modal-day').addEventListener('click',e=>{if(e.target.id==='modal-day')closeModal('modal-day');});document.getElementById('modal-settings').addEventListener('click',e=>{if(e.target.id==='modal-settings')closeModal('modal-settings');});
             $('in-todo').addEventListener('keydown',e=>e.key==='Enter'&&addTodo());$('in-sche-text').addEventListener('keydown',e=>e.key==='Enter'&&addSche());$('in-thought').addEventListener('keydown',e=>e.key==='Enter'&&!e.shiftKey&&(e.preventDefault(),addThought()));$('new-habit-text').addEventListener('keydown',e=>e.key==='Enter'&&addHabit());
             $('new-shop-name').addEventListener('keydown',e=>e.key==='Enter'&&addShopItem());$('new-shop-price').addEventListener('keydown',e=>e.key==='Enter'&&addShopItem());
         }init();
